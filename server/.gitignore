@@ -10,6 +10,7 @@
 Homestead.json
 Homestead.yaml
 auth.json
+vendor
 npm-debug.log
 yarn-error.log
 /.fleet
