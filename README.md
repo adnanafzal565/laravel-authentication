@@ -58,6 +58,15 @@ Create a database of that name in your phpMyAdmin too.
 ]
 ```
 
+3. Inside "server" folder, run the following commands:
+
+```
+> COMPOSER_MEMORY_LIMIT=-1 composer update
+> php artisan key:generate
+> php artisan storage:link
+> php artisan migrate
+```
+
 You can access the project from:
 http://localhost/laravel-authentication
 
