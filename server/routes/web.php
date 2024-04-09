@@ -13,6 +13,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get("/admin", function () {
+    return view("admin/index");
+});
+
+Route::get("/email-verification/{email}", function () {
+    return view("email-verification", [
+        "email" => request()->email
+    ]);
+});
+
 Route::get("/reset-password/{email}/{token}", function () {
     return view("reset-password", [
         "token" => request()->token,
@@ -23,7 +33,7 @@ Route::get("/reset-password/{email}/{token}", function () {
 
 Route::get("/forgot-password", function () {
     return view("forgot-password");
-});
+})->name("password.request");
 
 Route::get("/change-password", function () {
     return view("change-password");

@@ -38,25 +38,9 @@
 ],
 ```
 
-Create a database of that name in your phpMyAdmin too.
+Create a database named "laravel_authentication" in your phpMyAdmin.
 
-2. Goto file "server/config/mail.php" and set your SMTP credentials.
-
-```
-'mailers' => [
-    'smtp' => [
-        ...
-
-        "host" => "mail.adnan-tech.com",
-        "port" => 587,
-        "encryption" => "tls",
-        "username" => "support@adnan-tech.com",
-        "password" => "",
-
-        ...
-    ],
-]
-```
+2. Goto file "server/config/config.php" and set your SMTP credentials.
 
 3. Inside "server" folder, run the following commands:
 

@@ -20,6 +20,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::post("/verify-email", [UserController::class, "verify_email"]);
 Route::post("/reset-password", [UserController::class, "reset_password"]);
 Route::post("/send-password-reset-link", [UserController::class, "send_password_reset_link"]);
 Route::post("/login", [UserController::class, "login"]);
