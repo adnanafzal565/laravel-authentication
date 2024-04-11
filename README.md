@@ -44,12 +44,15 @@ Create a database named "laravel_authentication" in your phpMyAdmin.
 
 3. Inside "server" folder, run the following commands:
 
+(You can write any name, email or password of your choice for super admin while running 5th command)
+
 ```
-> COMPOSER_MEMORY_LIMIT=-1 composer update
-> php artisan key:generate
-> php artisan storage:link
-> php artisan migrate
-> php artisan serve
+1) COMPOSER_MEMORY_LIMIT=-1 composer update
+2) php artisan key:generate
+3) php artisan storage:link
+4) php artisan migrate
+5) name="Admin" email="admin@adnan-tech.com" password="admin" php artisan db:seed --class=DatabaseSeeder
+6) php artisan serve
 ```
 
 You can access the project from:

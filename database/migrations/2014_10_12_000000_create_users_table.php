@@ -19,6 +19,7 @@ return new class extends Migration
             $table->longText("profile_image")->nullable();
             $table->text("verification_code")->nullable();
             $table->timestamp('email_verified_at')->nullable();
+            $table->string("type")->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

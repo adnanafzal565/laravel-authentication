@@ -429,6 +429,7 @@ class UserController extends Controller
                 "email" => $email,
                 "password" => password_hash($password, PASSWORD_DEFAULT),
                 "verification_code" => $verification_code,
+                "type" => "user",
                 "created_at" => now(),
                 "updated_at" => now()
             ]);
