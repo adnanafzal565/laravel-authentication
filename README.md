@@ -16,6 +16,7 @@
 
 ### Tech stack
 
+- PHP +8.2
 - Laravel +10
 - React +18
 - Bootstrap +5

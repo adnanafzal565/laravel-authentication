@@ -12,31 +12,40 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
+use DB;
+
 class Controller extends BaseController
 {
     use AuthorizesRequests, ValidatesRequests;
 
     protected $token_secret = "laravel-authentication-token-secret";
+    protected $admin_token_secret = "laravel-authentication-admin-token-secret";
 
     protected function send_mail($to, $to_name, $subject, $body)
     {
         //Create an instance; passing `true` enables exceptions
         $mail = new PHPMailer(true);
 
+        $smtp_setting = DB::table("smtp_settings")->first();
+        if ($smtp_setting == null)
+        {
+            return "SMTP configurations not set.";
+        }
+
         try
         {
             //Server settings
             $mail->SMTPDebug = 0; // SMTP::DEBUG_SERVER;                      //Enable verbose debug output
             $mail->isSMTP();                                            //Send using SMTP
-            $mail->Host       = config("config.smtp_host");                     //Set the SMTP server to send through
+            $mail->Host       = $smtp_setting->host;                     //Set the SMTP server to send through
             $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
-            $mail->Username   = config("config.smtp_username");                     //SMTP username
-            $mail->Password   = config("config.smtp_password");                               //SMTP password
+            $mail->Username   = $smtp_setting->username;                     //SMTP username
+            $mail->Password   = $smtp_setting->password;                               //SMTP password
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
-            $mail->Port       = config("config.smtp_port");                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+            $mail->Port       = $smtp_setting->port;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
 
             //Recipients
-            $mail->setFrom(config("config.smtp_from"), config("config.smtp_from_name"));
+            $mail->setFrom($smtp_setting->from, $smtp_setting->from_name);
             $mail->addAddress($to, $to_name);     //Add a recipient
 
             //Content

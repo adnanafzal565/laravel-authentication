@@ -39,7 +39,11 @@
 
         <footer class="footer mt-auto py-3 bg-light">
             <div class="container">
-                <span class="text-muted">Copyright {{ now()->year }}. All right reserved.</span>
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <span class="text-muted">Copyright {{ now()->year }}. All right reserved.</span>                        
+                    </div>
+                </div>
             </div>
         </footer>
     </body>

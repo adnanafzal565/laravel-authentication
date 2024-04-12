@@ -13,6 +13,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get("/admin/settings", function () {
+    return view("admin/settings");
+});
+
+Route::get("/admin/login", function () {
+    return view("admin/login");
+});
+
 Route::get("/admin", function () {
     return view("admin/index");
 });

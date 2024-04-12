@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,9 +27,14 @@ Route::post("/send-password-reset-link", [UserController::class, "send_password_
 Route::post("/login", [UserController::class, "login"]);
 Route::post("/register", [UserController::class, "register"]);
 
+Route::post("/admin/login", [AdminController::class, "login"]);
+
 Route::group([
     "middleware" => ["auth:sanctum"]
 ], function () {
+    Route::post("/admin/fetch-smtp-settings", [AdminController::class, "fetch_smtp_settings"]);
+    Route::post("/admin/save-smtp-settings", [AdminController::class, "save_smtp_settings"]);
+
     Route::post("/change-password", [UserController::class, "change_password"]);
     Route::post("/save-profile", [UserController::class, "save_profile"]);
     Route::post("/logout", [UserController::class, "logout"]);
