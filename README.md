@@ -13,6 +13,8 @@
 5. User profile
 6. Edit name and profile picture
 7. Change password
+8. Admin panel
+9. Dynamic SMTP settings from admin panel
 
 ### Tech stack
 
@@ -23,7 +25,7 @@
 
 ### How to setup
 
-1. Goto file "server/config/database.php" and set your database credentials.
+1. Goto file "config/database.php" and set your database credentials.
 
 ```
 'mysql' => [
@@ -41,9 +43,7 @@
 
 Create a database named "laravel_authentication" in your phpMyAdmin.
 
-2. Goto file "server/config/config.php" and set your SMTP credentials.
-
-3. Inside "server" folder, run the following commands:
+2. At root folder, run the following commands:
 
 (You can write any name, email or password of your choice for super admin while running 5th command)
 
