@@ -318,7 +318,7 @@ class UserController extends Controller
 
         if (Storage::exists("public/" . $user->profile_image))
         {
-            $user->profile_image = url("/server/public/storage/" . $user->profile_image);
+            $user->profile_image = url("/storage/" . $user->profile_image);
         }
 
         return response()->json([
