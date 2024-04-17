@@ -7,90 +7,112 @@
     <h1>Settings</h1>
     <nav>
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ url('/admin') }}">Home</a></li>
         <li class="breadcrumb-item active">Settings</li>
       </ol>
     </nav>
   </div><!-- End Page Title -->
 
   <section class="section">
+
+    <form onsubmit="saveSettings()" id="form-settings"></form>
+
     <div class="row">
       <div class="col-6">
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">SMTP settings</h5>
-            <form onsubmit="saveSMTPSettings()" id="form-smtp-setting">
-              <div class="row mb-3">
-                <label for="inputText" class="col-sm-3 col-form-label">Host</label>
-                <div class="col-sm-9">
-                  <input type="text" class="form-control" name="host" />
-                </div>
+            <div class="row mb-3">
+              <label for="inputText" class="col-sm-3 col-form-label">Host</label>
+              <div class="col-sm-9">
+                <input type="text" class="form-control" form="form-settings" name="host" />
               </div>
+            </div>
 
-              <div class="row mb-3">
-                <label for="inputText" class="col-sm-3 col-form-label">Port</label>
-                <div class="col-sm-9">
-                  <input type="text" class="form-control" name="port" />
-                </div>
+            <div class="row mb-3">
+              <label for="inputText" class="col-sm-3 col-form-label">Port</label>
+              <div class="col-sm-9">
+                <input type="text" class="form-control" form="form-settings" name="port" />
               </div>
+            </div>
 
-              <div class="row mb-3">
-                <label for="inputText" class="col-sm-3 col-form-label">Encryption</label>
-                <div class="col-sm-9">
-                  <label>
-                    SSL
-                    <input type="radio" name="encryption" value="ssl" />
-                  </label>
-                  
-                  <label>
-                    TLS
-                    <input type="radio" name="encryption" value="tls" />
-                  </label>
-                </div>
+            <div class="row mb-3">
+              <label for="inputText" class="col-sm-3 col-form-label">Encryption</label>
+              <div class="col-sm-9">
+                <label>
+                  SSL
+                  <input type="radio" name="encryption" form="form-settings" value="ssl" />
+                </label>
+                
+                <label>
+                  TLS
+                  <input type="radio" name="encryption" form="form-settings" value="tls" />
+                </label>
               </div>
+            </div>
 
-              <div class="row mb-3">
-                <label for="inputText" class="col-sm-3 col-form-label">Username</label>
-                <div class="col-sm-9">
-                  <input type="email" class="form-control" name="username" />
-                </div>
+            <div class="row mb-3">
+              <label for="inputText" class="col-sm-3 col-form-label">Username</label>
+              <div class="col-sm-9">
+                <input type="email" class="form-control" form="form-settings" name="username" />
               </div>
+            </div>
 
-              <div class="row mb-3">
-                <label for="inputText" class="col-sm-3 col-form-label">Password</label>
-                <div class="col-sm-9">
-                  <input type="password" class="form-control" name="password" />
-                </div>
+            <div class="row mb-3">
+              <label for="inputText" class="col-sm-3 col-form-label">Password</label>
+              <div class="col-sm-9">
+                <input type="password" class="form-control" form="form-settings" name="password" />
               </div>
+            </div>
 
-              <div class="row mb-3">
-                <label for="inputText" class="col-sm-3 col-form-label">From email</label>
-                <div class="col-sm-9">
-                  <input type="text" class="form-control" name="from" />
-                </div>
+            <div class="row mb-3">
+              <label for="inputText" class="col-sm-3 col-form-label">From email</label>
+              <div class="col-sm-9">
+                <input type="text" class="form-control" form="form-settings" name="from" />
               </div>
+            </div>
 
-              <div class="row mb-3">
-                <label for="inputText" class="col-sm-3 col-form-label">From name</label>
-                <div class="col-sm-9">
-                  <input type="text" class="form-control" name="from_name" />
-                </div>
+            <div class="row mb-3">
+              <label for="inputText" class="col-sm-3 col-form-label">From name</label>
+              <div class="col-sm-9">
+                <input type="text" class="form-control" form="form-settings" name="from_name" />
               </div>
-
-              <div class="row mb-3">
-                <div class="offset-sm-3 col-sm-9">
-                  <button type="submit" name="submit" class="btn btn-primary">Save settings</button>
-                </div>
-              </div>
-            </form>
+            </div>
           </div>
         </div>
+      </div>
+
+      <div class="col-6">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Account settings</h5>
+            <div class="row mb-3">
+              <label for="inputText" class="col-sm-6 col-form-label">Verify email on registration</label>
+              <div class="col-sm-6" style="position: relative; top: 5px;">
+                <label>
+                  Yes
+                  <input type="radio" form="form-settings" name="verify_email" value="yes" />
+                </label>
+
+                <label style="margin-left: 10px;">
+                  No
+                  <input type="radio" form="form-settings" name="verify_email" value="no" />
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-6">
+        <button type="submit" name="submit" class="btn btn-primary" form="form-settings">Save settings</button>
       </div>
     </div>
   </section>
 
   <script>
-    async function saveSMTPSettings() {
+    async function saveSettings() {
       event.preventDefault()
       const form = event.target
       const formData = new FormData(form)
@@ -98,7 +120,7 @@
 
       try {
         const response = await axios.post(
-          baseUrl + "/api/admin/save-smtp-settings",
+          baseUrl + "/api/admin/save-settings",
           formData,
           {
             headers: {
@@ -122,7 +144,7 @@
     async function onInit() {
       try {
         const response = await axios.post(
-          baseUrl + "/api/admin/fetch-smtp-settings",
+          baseUrl + "/api/admin/fetch-settings",
           null,
           {
             headers: {
@@ -132,17 +154,18 @@
         )
 
         if (response.data.status == "success") {
-          const smtpSetting = response.data.smtp_setting
-          const form = document.getElementById("form-smtp-setting")
+          const settings = response.data.settings
+          const form = document.getElementById("form-settings")
 
-          if (smtpSetting != null) {
-            form.host.value = smtpSetting.host
-            form.port.value = smtpSetting.port
-            form.encryption.value = smtpSetting.encryption
-            form.username.value = smtpSetting.username
-            form.password.value = smtpSetting.password
-            form.from.value = smtpSetting.from
-            form.from_name.value = smtpSetting.from_name
+          if (settings != null) {
+            form.host.value = settings.smtp_host || ""
+            form.port.value = settings.smtp_port || ""
+            form.encryption.value = settings.smtp_encryption || ""
+            form.username.value = settings.smtp_username || ""
+            form.password.value = settings.smtp_password || ""
+            form.from.value = settings.smtp_from || ""
+            form.from_name.value = settings.smtp_from_name || ""
+            form.verify_email.value = settings.verify_email || ""
           }
         } else {
           swal.fire("Error", response.data.message, "error")

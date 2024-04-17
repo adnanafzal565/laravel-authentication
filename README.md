@@ -59,4 +59,6 @@ Create a database named "laravel_authentication" in your phpMyAdmin.
 You can access the project from:
 http://localhost:8000
 
+For deployment, check our <a href="https://www.youtube.com/watch?v=EKJnV_-ZX0o" target="_blank">tutorial</a>.
+
 If you face any issue in this, kindly let me know: support@adnan-tech.com

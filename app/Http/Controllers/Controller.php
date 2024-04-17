@@ -26,10 +26,12 @@ class Controller extends BaseController
         //Create an instance; passing `true` enables exceptions
         $mail = new PHPMailer(true);
 
-        $smtp_setting = DB::table("smtp_settings")->first();
-        if ($smtp_setting == null)
+        $settings = DB::table("settings")->get();
+        $settings_obj = new \stdClass();
+
+        foreach ($settings as $setting)
         {
-            return "SMTP configurations not set.";
+            $settings_obj->{$setting->key} = $setting->value;
         }
 
         try
@@ -37,15 +39,15 @@ class Controller extends BaseController
             //Server settings
             $mail->SMTPDebug = 0; // SMTP::DEBUG_SERVER;                      //Enable verbose debug output
             $mail->isSMTP();                                            //Send using SMTP
-            $mail->Host       = $smtp_setting->host;                     //Set the SMTP server to send through
+            $mail->Host       = $settings_obj->smtp_host;                     //Set the SMTP server to send through
             $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
-            $mail->Username   = $smtp_setting->username;                     //SMTP username
-            $mail->Password   = $smtp_setting->password;                               //SMTP password
+            $mail->Username   = $settings_obj->smtp_username;                     //SMTP username
+            $mail->Password   = $settings_obj->smtp_password;                               //SMTP password
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
-            $mail->Port       = $smtp_setting->port;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+            $mail->Port       = $settings_obj->smtp_port;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
 
             //Recipients
-            $mail->setFrom($smtp_setting->from, $smtp_setting->from_name);
+            $mail->setFrom($settings_obj->smtp_from, $settings_obj->smtp_from_name);
             $mail->addAddress($to, $to_name);     //Add a recipient
 
             //Content

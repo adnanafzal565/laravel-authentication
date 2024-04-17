@@ -13,6 +13,20 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get("/admin/users/add", function () {
+    return view("admin/users/add");
+});
+
+Route::get("/admin/users/edit/{id}", function () {
+    return view("admin/users/edit", [
+        "id" => request()->id ?? 0
+    ]);
+});
+
+Route::get("/admin/users", function () {
+    return view("admin/users/index");
+});
+
 Route::get("/admin/settings", function () {
     return view("admin/settings");
 });

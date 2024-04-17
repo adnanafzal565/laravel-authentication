@@ -45,9 +45,14 @@
                 )
 
                 if (response.data.status == "success") {
+                    const verification = response.data.verification
                     swal.fire("Register", response.data.message, "success")
                         .then(function () {
-                            window.location.href = baseUrl + "/email-verification/" + form.email.value
+                            if (verification) {
+                                window.location.href = baseUrl + "/email-verification/" + form.email.value
+                            } else {
+                                window.location.href = baseUrl + "/login"
+                            }
                         })
                 } else {
                     swal.fire("Error", response.data.message, "error")

@@ -49,8 +49,8 @@ class UserController extends Controller
             ->where("id", "=", $user->id)
             ->update([
                 "verification_code" => null,
-                "email_verified_at" => now(),
-                "updated_at" => now()
+                "email_verified_at" => now()->utc(),
+                "updated_at" => now()->utc()
             ]);
 
         return response()->json([
@@ -132,7 +132,7 @@ class UserController extends Controller
             ->where("email", "=", $email)
             ->update([
                 "password" => password_hash($password, PASSWORD_DEFAULT),
-                "updated_at" => now()
+                "updated_at" => now()->utc()
             ]);
 
         return response()->json([
@@ -202,7 +202,7 @@ class UserController extends Controller
             ->insertGetId([
                 "email" => $email,
                 "token" => $reset_token,
-                "created_at" => now()
+                "created_at" => now()->utc()
             ]);
 
         return response()->json([
@@ -242,7 +242,7 @@ class UserController extends Controller
             ->where("id", "=", $user->id)
             ->update([
                 "password" => password_hash($new_password, PASSWORD_DEFAULT),
-                "updated_at" => now()
+                "updated_at" => now()->utc()
             ]);
 
         return response()->json([
@@ -287,7 +287,7 @@ class UserController extends Controller
             ->update([
                 "name" => $name,
                 "profile_image" => $file_path,
-                "updated_at" => now()
+                "updated_at" => now()->utc()
             ]);
 
         return response()->json([
@@ -315,11 +315,7 @@ class UserController extends Controller
     public function me()
     {
         $user = auth()->user();
-
-        if (Storage::exists("public/" . $user->profile_image))
-        {
-            $user->profile_image = url("/storage/" . $user->profile_image);
-        }
+        $user->profile_image = url("/storage/" . $user->profile_image);
 
         return response()->json([
             "status" => "success",
@@ -351,7 +347,9 @@ class UserController extends Controller
         $email = request()->email ?? "";
         $password = request()->password ?? "";
 
-        $user = User::where("email", "=", $email)->first();
+        $user = User::where("email", "=", $email)
+            ->whereNull("deleted_at")
+            ->first();
 
         if ($user == null)
         {
@@ -418,25 +416,51 @@ class UserController extends Controller
             ]);
         }
 
-        $verification_code = Str::random(6);
+        $user_arr = [
+            "name" => $name,
+            "email" => $email,
+            "password" => password_hash($password, PASSWORD_DEFAULT),
+            "type" => "user",
+            "created_at" => now()->utc(),
+            "updated_at" => now()->utc()
+        ];
 
-        $message = '<p>Your verification code is: <b style="font-size: 30px;">' . $verification_code . '</b></p>';
-        $this->send_mail($email, $name, "Email verification", $message);
+        $setting_verify_email = DB::table("settings")
+            ->where("key", "=", "verify_email")
+            ->where("value", "=", "yes")
+            ->first();
+
+        if ($setting_verify_email == null)
+        {
+            $user_arr["email_verified_at"] = now()->utc();
+        }
+        else
+        {
+            $verification_code = Str::random(6);
+            $user_arr["verification_code"] = $verification_code;
+
+            $message = '<p>Your verification code is: <b style="font-size: 30px;">' . $verification_code . '</b></p>';
+            $this->send_mail($email, $name, "Email verification", $message);
+        }
 
         DB::table("users")
-            ->insertGetId([
-                "name" => $name,
-                "email" => $email,
-                "password" => password_hash($password, PASSWORD_DEFAULT),
-                "verification_code" => $verification_code,
-                "type" => "user",
-                "created_at" => now(),
-                "updated_at" => now()
-            ]);
+            ->insertGetId($user_arr);
 
-        return response()->json([
-            "status" => "success",
-            "message" => "Please check your email, a verification code has been sent to you."
-        ]);
+        if ($setting_verify_email == null)
+        {
+            return response()->json([
+                "status" => "success",
+                "message" => "Account has been created. Please login now.",
+                "verification" => false
+            ]);
+        }
+        else
+        {
+            return response()->json([
+                "status" => "success",
+                "message" => "Please check your email, a verification code has been sent to you.",
+                "verification" => true
+            ]);
+        }
     }
 }
