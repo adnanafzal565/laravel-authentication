@@ -317,6 +317,12 @@ class UserController extends Controller
         $user = auth()->user();
         $user->profile_image = url("/storage/" . $user->profile_image);
 
+        $new_messages = DB::table("notifications")
+            ->where("user_id", "=", $user->id)
+            ->where("is_read", "=", 0)
+            ->where("type", "=", "new_message")
+            ->count();
+
         return response()->json([
             "status" => "success",
             "message" => "Data has been fetched.",
@@ -325,7 +331,8 @@ class UserController extends Controller
                 "name" => $user->name,
                 "email" => $user->email,
                 "profile_image" => $user->profile_image
-            ]
+            ],
+            "new_messages" => $new_messages
         ]);
     }
     

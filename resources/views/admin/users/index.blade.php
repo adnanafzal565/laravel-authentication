@@ -23,6 +23,15 @@
 
   <script type="text/babel">
     function Users() {
+      const styles = {
+        profileImage: {
+          width: "100px"
+        },
+        editBtn: {
+          marginBottom: "10px"
+        }
+      }
+
       const [users, setUsers] = React.useState([])
 
       async function onInit() {
@@ -55,12 +64,6 @@
       React.useEffect(function () {
           onInit()
       }, [])
-
-      const styles = {
-        profileImage: {
-          width: "100px"
-        }
-      }
 
       function deleteUser(id) {
         swal.fire({
@@ -132,7 +135,8 @@
                       <td>{ user.type }</td>
                       <td>{ user.created_at }</td>
                       <td>
-                        <a href={`${ baseUrl }/admin/users/edit/${ user.id }`} className="btn btn-outline-warning">Edit</a>&nbsp;
+                        <a href={`${ baseUrl }/admin/users/edit/${ user.id }`} style={ styles.editBtn } className="btn btn-outline-warning">Edit</a>&nbsp;
+                        
                         <button type="button" className="btn btn-outline-danger" onClick={ function () {
                           deleteUser(user.id)
                         } }>Delete</button>

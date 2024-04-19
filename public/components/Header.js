@@ -21,9 +21,16 @@ function Header() {
                 )
 
                 if (response.data.status == "success") {
+                    const user = response.data.user
+                    const newMessages = response.data.new_messages
+
                     globalState.setState({
-                        user: response.data.user
+                        user: user
                     })
+
+                    if (newMessages > 0) {
+                        document.getElementById("message-notification-badge").innerHTML = newMessages
+                    }
                 } else {
                     // swal.fire("Error", response.data.message, "error")
                 }

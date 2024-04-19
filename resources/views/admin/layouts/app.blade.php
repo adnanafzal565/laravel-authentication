@@ -28,6 +28,7 @@
 
   <!-- Template Main CSS File -->
   <link href="{{ asset('/administrator/css/style.css') }}" rel="stylesheet" />
+  <link href="{{ asset('/administrator/css/custom.css?v=' . time()) }}" rel="stylesheet" />
   <link href="{{ asset('/css/fontawesome.css') }}" rel="stylesheet" />
   <script src="{{ asset('/js/fontawesome.js') }}"></script>
 
@@ -84,9 +85,16 @@
                   )
 
                   if (response.data.status == "success") {
+                      const newMessages = response.data.new_messages
+                      const user = response.data.user
+
                       globalState.setState({
-                          user: response.data.user
+                          user: user
                       })
+
+                      if (newMessages > 0) {
+                        document.getElementById("message-notification-badge").innerHTML = newMessages
+                      }
 
                       window.onInit()
                   } else {
@@ -214,6 +222,14 @@
       </li>
 
       <li class="nav-item">
+        <a class="nav-link {{ request()->url() == url('/admin/messages') ? '' : 'collapsed' }}" href="{{ url('/admin/messages') }}">
+          <i class="fa fa-comments"></i>&nbsp;
+          <span>Messages</span>
+          <span class="badge bg-primary badge-notification" id="message-notification-badge"></span>
+        </a>
+      </li>
+
+      <li class="nav-item">
         <a class="nav-link {{ request()->url() == url('/admin/settings') ? '' : 'collapsed' }}" href="{{ url('/admin/settings') }}">
           <i class="fa fa-gear"></i>&nbsp;
           <span>Settings</span>
@@ -311,14 +327,7 @@
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
     <div class="copyright">
-      &copy; Copyright <strong><span>NiceAdmin</span></strong>. All Rights Reserved
-    </div>
-    <div class="credits">
-      <!-- All the links in the footer should remain intact. -->
-      <!-- You can delete the links only if you purchased the pro version. -->
-      <!-- Licensing information: https://bootstrapmade.com/license/ -->
-      <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ -->
-      Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+      &copy; Copyright. All Rights Reserved
     </div>
   </footer><!-- End Footer -->
 

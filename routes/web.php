@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get("/admin/messages", function () {
+    return view("admin/messages");
+});
+
 Route::get("/admin/users/add", function () {
     return view("admin/users/add");
 });

@@ -3,8 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\MessagesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +32,17 @@ Route::post("/admin/login", [AdminController::class, "login"]);
 Route::group([
     "middleware" => ["auth:sanctum"]
 ], function () {
+    Route::post("/messages/fetch", [MessagesController::class, "fetch"]);
+    Route::post("/messages/send", [MessagesController::class, "send"]);
+
+    Route::post("/change-password", [UserController::class, "change_password"]);
+    Route::post("/save-profile", [UserController::class, "save_profile"]);
+    Route::post("/logout", [UserController::class, "logout"]);
+    Route::post("/me", [UserController::class, "me"]);
+
+    Route::post("/admin/send-message", [AdminController::class, "send_message"]);
+    Route::post("/admin/fetch-messages", [AdminController::class, "fetch_messages"]);
+    Route::post("/admin/fetch-contacts", [AdminController::class, "fetch_contacts"]);
     Route::post("/admin/users/add", [AdminController::class, "add_user"]);
     Route::post("/admin/users/change-password", [AdminController::class, "change_user_password"]);
     Route::post("/admin/users/delete", [AdminController::class, "delete_user"]);
@@ -39,9 +51,4 @@ Route::group([
     Route::post("/admin/users/fetch", [AdminController::class, "fetch_users"]);
     Route::post("/admin/fetch-settings", [AdminController::class, "fetch_settings"]);
     Route::post("/admin/save-settings", [AdminController::class, "save_settings"]);
-
-    Route::post("/change-password", [UserController::class, "change_password"]);
-    Route::post("/save-profile", [UserController::class, "save_profile"]);
-    Route::post("/logout", [UserController::class, "logout"]);
-    Route::post("/me", [UserController::class, "me"]);
 });

@@ -11,6 +11,221 @@ use App\Models\User;
 
 class AdminController extends Controller
 {
+    public function send_message()
+    {
+        $validator = Validator::make(request()->all(), [
+            "id" => "required",
+            "message" => "required"
+        ]);
+
+        if (!$validator->passes() && count($validator->errors()->all()) > 0)
+        {
+            return response()->json([
+                "status" => "error",
+                "message" => $validator->errors()->all()[0]
+            ]);
+        }
+
+        $this->auth();
+        $admin = auth()->user();
+
+        $id = request()->id ?? 0;
+        $message = request()->message ?? "";
+        $time_zone = request()->time_zone ?? "";
+        if (!empty($time_zone))
+        {
+            $date_time_zone = new \DateTimeZone($time_zone);
+        }
+
+        $user = DB::table("users")
+            ->where("id", "=", $id)
+            ->first();
+
+        if ($user == null)
+        {
+            return response()->json([
+                "status" => "error",
+                "message" => "User not found."
+            ]);
+        }
+
+        $message_arr = [
+            "message" => $message,
+            "sender_id" => $admin->id,
+            "receiver_id" => $user->id,
+            "created_at" => now()->utc(),
+            "updated_at" => now()->utc()
+        ];
+        
+        $message_arr["id"] = DB::table("messages")
+            ->insertGetId($message_arr);
+
+        if (!empty($time_zone))
+        {
+            $date_time = new \DateTime($message_arr["created_at"]);
+            $date_time->setTimezone($date_time_zone);
+            $message_arr["created_at"] = $date_time->format("d M, Y h:i:s a");
+        }
+
+        DB::table("notifications")
+            ->insertGetId([
+                "user_id" => $user->id,
+                "title" => "New message",
+                "content" => "A new message has been received.",
+                "type" => "new_message",
+                "table_id" => $message_arr["id"],
+                "is_read" => 0,
+                "created_at" => now()->utc(),
+                "updated_at" => now()->utc()
+            ]);
+
+        return response()->json([
+            "status" => "success",
+            "message" => "Message has been sent.",
+            "message_obj" => (object) $message_arr
+        ]);
+    }
+
+    public function fetch_messages()
+    {
+        $validator = Validator::make(request()->all(), [
+            "id" => "required"
+        ]);
+
+        if (!$validator->passes() && count($validator->errors()->all()) > 0)
+        {
+            return response()->json([
+                "status" => "error",
+                "message" => $validator->errors()->all()[0]
+            ]);
+        }
+
+        $this->auth();
+        $admin = auth()->user();
+        $id = request()->id ?? 0;
+        $time_zone = request()->time_zone ?? "";
+        if (!empty($time_zone))
+        {
+            $date_time_zone = new \DateTimeZone($time_zone);
+        }
+
+        $messages = DB::table("messages")
+            ->select("messages.*", "sender.name AS sender_name")
+            ->join("users AS sender", "sender.id", "=", "messages.sender_id")
+            ->where("sender_id", "=", $id)
+            ->orWhere("receiver_id", "=", $id)
+            ->orderBy("messages.id", "desc")
+            ->get();
+
+        $messages_arr = [];
+        $message_ids = [];
+        foreach ($messages as $message)
+        {
+            if (!empty($time_zone))
+            {
+                $date_time = new \DateTime($message->created_at);
+                $date_time->setTimezone($date_time_zone);
+                $message->created_at = $date_time->format("d M, Y h:i:s a");
+            }
+
+            $message_obj = [
+                "id" => $message->id,
+                "sender_id" => $message->sender_id,
+                "sender_name" => $message->sender_name,
+                "message" => $message->message ?? "",
+                "created_at" => $message->created_at
+            ];
+
+            array_push($messages_arr, $message_obj);
+            array_push($message_ids, $message->id);
+        }
+
+        $notifications_count = 0;
+        $notifications = DB::table("notifications")
+            ->where("user_id", "=", $admin->id)
+            ->where("type", "=", "new_message")
+            ->whereIn("table_id", $message_ids)
+            ->where("is_read", "=", 0);
+
+        $notifications_count = $notifications->count();
+
+        $notifications->update([
+                "is_read" => 1,
+                "updated_at" => now()
+            ]);
+
+        return response()->json([
+            "status" => "success",
+            "message" => "Data has been fetched.",
+            "messages" => $messages_arr,
+            "notifications_count" => $notifications_count
+        ]);
+    }
+
+    public function fetch_contacts()
+    {
+        $this->auth();
+        $admin = auth()->user();
+
+        $messages = DB::table("messages")
+            ->where("sender_id", "=", $admin->id)
+            ->orWhere("receiver_id", "=", $admin->id)
+            ->get();
+
+        $user_ids = [];
+        $last_message = [];
+        $last_message_date = [];
+        foreach ($messages as $message)
+        {
+            if ($message->sender_id == $admin->id)
+            {
+                $last_message[$message->receiver_id] = $message->message ?? "";
+                $last_message_date[$message->receiver_id] = date("d M", strtotime($message->created_at)) ?? "";
+                array_push($user_ids, $message->receiver_id);
+            }
+            else
+            {
+                $last_message[$message->sender_id] = $message->message ?? "";
+                $last_message_date[$message->sender_id] = date("d M", strtotime($message->created_at)) ?? "";
+                array_push($user_ids, $message->sender_id);
+            }
+        }
+
+        $user_ids = array_unique($user_ids);
+
+        $users = DB::table("users")
+            ->whereIn("id", $user_ids)
+            ->get();
+        $users_arr = [];
+        foreach ($users as $user)
+        {
+            $user_obj = [
+                "id" => $user->id,
+                "name" => $user->name,
+                "email" => $user->email,
+                "profile_image" => url("/storage/" . $user->profile_image)
+            ];
+
+            if (isset($last_message[$user->id]))
+            {
+                $user_obj["last_message"] = $last_message[$user->id];
+            }
+
+            if (isset($last_message_date[$user->id]))
+            {
+                $user_obj["last_message_date"] = $last_message_date[$user->id];
+            }
+
+            array_push($users_arr, $user_obj);
+        }
+
+        return response()->json([
+            "status" => "success",
+            "message" => "Data has been fetched.",
+            "users" => $users_arr
+        ]);
+    }
+
     public function add_user()
     {
         $validator = Validator::make(request()->all(), [

@@ -5,7 +5,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>@yield("title", "Laravel authentication")</title>
 
-        <link rel="stylesheet" type="text/css" href="{{ asset('/css/bootstrap.css') }}" />
+        <link rel="stylesheet" href="{{ asset('/css/bootstrap.css') }}" />
+        <link rel="stylesheet" href="{{ asset('/css/fontawesome.css') }}" />
         <script src="{{ asset('/js/jquery.js') }}"></script>
         <script src="{{ asset('/js/bootstrap.js') }}"></script>
 
@@ -14,6 +15,7 @@
         <script src="{{ asset('/js/babel.min.js') }}"></script>
         <script src="{{ asset('/js/axios.min.js') }}"></script>
         <script src="{{ asset('/js/sweetalert2@11.js') }}"></script>
+        <script src="{{ asset('/js/fontawesome.js') }}"></script>
     </head>
 
     <body>
@@ -46,5 +48,9 @@
                 </div>
             </div>
         </footer>
+
+        <div id="chat-app"></div>
+        <script type="text/babel" src="{{ asset('/components/Chat.js?v=' . time()) }}"></script>
+        <link rel="stylesheet" href="{{ asset('/css/chat.css') }}" />
     </body>
 </html>
