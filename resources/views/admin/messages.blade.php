@@ -17,6 +17,43 @@
   </section>
 
   <script type="text/babel">
+    function Attachments({ message }) {
+      const styles = {
+        singleAttachment: {
+          width: "fit-content",
+          marginRight: "20px",
+          marginBottom: "20px",
+          position: "relative",
+          display: "inline-block"
+        },
+
+        attachmentImage: {
+          width: "50px",
+          height: "50px",
+          objectFit: "cover",
+          cursor: "pointer"
+        },
+
+        container: {
+          marginTop: "10px"
+        }
+      }
+
+      return (
+        <div style={ styles.container }>
+          { message.attachments.map(function (attachment, attachmentIndex) {
+            return (
+              <div key={`message-attachment-${ message.id }-${ attachmentIndex }`} style={ styles.singleAttachment }>
+                <img src={ attachment } style={ styles.attachmentImage } onClick={ function () {
+                  window.open(attachment, "_blank")
+                } } />
+              </div>
+            )
+          }) }
+        </div>
+      )
+    }
+
     function Messages() {
       const [state, setState] = React.useState(globalState.state)
       const [fetchingContacts, setFetchingContacts] = React.useState(false)
@@ -26,6 +63,52 @@
       const [messages, setMessages] = React.useState([])
       const [message, setMessage] = React.useState("")
       const [sending, setSending] = React.useState(false)
+      const [attachments, setAttachments] = React.useState([])
+      const [search, setSearch] = React.useState("")
+
+      const styles = {
+        btnSubmit: {
+          backgroundColor: sending ? "gray" : "#05728f"
+        },
+        hidden: {
+          display: "none"
+        },
+        attachmentContainer: {
+          width: "fit-content",
+          marginTop: "13px",
+          marginRight: "10px",
+          cursor: "pointer"
+        },
+        selectedAttachmentContainer: {
+          marginRight: "10px",
+          marginLeft: "10px",
+          marginTop: "20px",
+          display: "inline-block",
+          maxWidth: "300px"
+        },
+        selectedSingleAttachment: {
+          width: "fit-content",
+          marginRight: "20px",
+          marginBottom: "20px",
+          position: "relative",
+          display: "inline-block"
+        },
+        iconRemoveAttachment: {
+          color: "red",
+          position: "absolute",
+          right: "-10px",
+          top: "-10px",
+          border: "2px solid white",
+          borderRadius: "50%",
+          fontSize: "12px",
+          cursor: "pointer"
+        },
+        selectedImage: {
+          width: "50px",
+          height: "50px",
+          objectFit: "cover"
+        }
+      }
 
       globalState.listen(function (newState) {
         setState(newState)
@@ -35,6 +118,35 @@
         }
       })
 
+      function attachmentSelected() {
+        const files = event.target.files
+        const tempFiles = []
+        for (let a = 0; a < files.length; a++) {
+          const fileReader = new FileReader()
+          fileReader.onload = function (event) {
+            tempFiles.push({
+              name: files[a].name,
+              src: event.target.result
+            })
+
+            if (tempFiles.length == files.length) {
+              setAttachments(tempFiles)
+            }
+          }
+          fileReader.readAsDataURL(files[a])
+        }
+      }
+
+      function removeAttachment(name) {
+        const tempAttachments = [...attachments]
+        for (let a = 0; a < tempAttachments.length; a++) {
+          if (tempAttachments[a].name == name) {
+            tempAttachments.splice(a, 1)
+          }
+        }
+        setAttachments(tempAttachments)
+      }
+
       async function onInit() {
         setFetchingContacts(true)
 
@@ -42,6 +154,7 @@
             const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
             const formData = new FormData()
             formData.append("time_zone", timeZone)
+            formData.append("search", search)
 
             const response = await axios.post(
                 baseUrl + "/api/admin/fetch-contacts",
@@ -65,7 +178,7 @@
         }
       }
 
-      async function fetchContactMessages(id) {
+      async function fetchContactMessages(id, hasMore = false) {
         setFetchingMessages(true)
 
         try {
@@ -87,10 +200,14 @@
           if (response.data.status == "success") {
             const notificationsCount = response.data.notifications_count
             const newMessages = response.data.messages
-            const tempMessages = [...messages]
+            
+            let tempMessages = []
+            if (hasMore) {
+              tempMessages = [...messages]
+            }
 
             for (let a = newMessages.length - 1; a >= 0; a--) {
-                tempMessages.push(newMessages[a])
+              tempMessages.push(newMessages[a])
             }
             setMessages(tempMessages)
 
@@ -103,6 +220,19 @@
             } else {
               document.getElementById("message-notification-badge").innerHTML = ""
             }
+
+            const tempContacts = [...contacts]
+            for (let a = 0; a < tempContacts.length; a++) {
+              if (tempContacts[a].id == id) {
+                tempContacts[a].user_notifications = 0
+                break
+              }
+            }
+            setContacts(tempContacts)
+
+            setTimeout(function () {
+              document.querySelector(".msg_history").scrollTop = document.querySelector(".msg_history").scrollHeight
+            }, 100)
           } else {
             swal.fire("Error", response.data.message, "error")
           }
@@ -114,19 +244,21 @@
       }
 
       async function sendMessage() {
+        event.preventDefault()
+
         if (selectedContact <= 0) {
-          swal.fire("Error", "Please select a contact first.", "error")
+          swal.fire("Error", "Please select a user first.", "error")
           return
         }
 
         setSending(true)
+        const form = event.target
         const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
         try {
-          const formData = new FormData()
+          const formData = new FormData(form)
           formData.append("time_zone", timeZone)
           formData.append("id", selectedContact)
-          formData.append("message", message)
 
           const response = await axios.post(
             baseUrl + "/api/admin/send-message",
@@ -144,6 +276,11 @@
             tempMessages.push(newMessage)
             setMessages(tempMessages)
             setMessage("")
+            setAttachments([])
+
+            setTimeout(function () {
+              document.querySelector(".msg_history").scrollTop = document.querySelector(".msg_history").scrollHeight
+            }, 100)
           } else {
             swal.fire("Error", response.data.message, "error")
           }
@@ -164,9 +301,11 @@
                 </div>
                 <div className="srch_bar">
                   <div className="stylish-input-group">
-                    <input type="text" className="search-bar"  placeholder="Search" />
+                    <input type="text" className="search-bar" value={ search } onChange={ function () {
+                      setSearch(event.target.value)
+                    } } placeholder="Search" />
                     <span className="input-group-addon">
-                      <button type="button"> <i className="fa fa-search" aria-hidden="true"></i> </button>
+                      <button type="button" onClick={ onInit }> <i className="fa fa-search" aria-hidden="true"></i> </button>
                     </span>
                   </div>
                 </div>
@@ -196,7 +335,13 @@
                         <div className="chat_img"> <img src={ contact.profile_image } alt={ contact.name } /> </div>
                         <div className="chat_ib">
                           <h5>{ contact.name } <span className="chat_date">{ contact.last_message_date }</span></h5>
-                          <p>{ contact.last_message }</p>
+                          <p>
+                            { contact.last_message }
+
+                            { contact.user_notifications > 0 && (
+                              <span class="badge bg-info">{ contact.user_notifications }</span>
+                            ) }
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -232,14 +377,22 @@
                         <div className="incoming_msg">
                           <div className="received_msg">
                             <div className="received_withd_msg">
-                              <p>{ m.message }</p>
+                              <p>
+                                { m.message }
+                                <Attachments message={ m } />
+                              </p>
+                              
                               <span className="time_date"> { m.created_at } </span></div>
                           </div>
                         </div>
                       ) : (
                         <div className="outgoing_msg">
                           <div className="sent_msg">
-                            <p>{ m.message }</p>
+                            <p>
+                              { m.message }
+                              <Attachments message={ m } />
+                            </p>
+                            
                             <span className="time_date"> { m.created_at } </span> </div>
                         </div>
                       ) }
@@ -248,18 +401,51 @@
                 }) }
 
               </div>
-              <div className="type_msg">
-                <div className="input_msg_write">
-                  <input type="text" className="write_msg" placeholder="Type a message"
-                    value={ message } onChange={ function () {
-                      setMessage(event.target.value)
-                    } } />
-                  <button className="msg_send_btn" type="button"
-                    onClick={ sendMessage }>
-                    <i className="fa fa-paper-plane" aria-hidden="true"></i>
-                  </button>
+
+              <form onSubmit={ sendMessage } encType="multipart/form-data">
+                <div className="type_msg">
+                  <div className="input_msg_write">
+
+                    <div onClick={ function () {
+                      document.getElementById("input-attachment-message").click()
+                    } } style={ styles.attachmentContainer }>
+                      <i className="fa fa-paperclip"></i>
+                    </div>
+
+                    <input type="file" style={ styles.hidden } id="input-attachment-message"
+                      multiple
+                      onChange={ attachmentSelected }
+                      name="attachments[]" />
+
+                    <input type="text" name="message" className="write_msg" placeholder="Type a message"
+                      value={ message } onChange={ function () {
+                        setMessage(event.target.value)
+                      } } />
+                    <button className="msg_send_btn" type="submit" disabled={ sending } style={ styles.btnSubmit }>
+                      <i className="fa fa-paper-plane" aria-hidden="true"></i>
+                    </button>
+                  </div>
                 </div>
-              </div>
+              </form>
+
+              { attachments.length > 0 && (
+                <div style={ styles.selectedAttachmentContainer }>
+                    { attachments.map(function (attachment) {
+                        return (
+                            <div key={`selected-attachment-${ attachment.name }`} style={ styles.selectedSingleAttachment }>
+                                <div onClick={ function () {
+                                    removeAttachment(attachment.name)
+                                } }>
+                                  <i className="fa fa-close" style={ styles.iconRemoveAttachment }></i>
+                                </div>
+
+                                <img src={ attachment.src } style={ styles.selectedImage } />
+                            </div>
+                        )
+                    }) }
+                </div>
+            ) }
+
             </div>
           </div>
           
@@ -274,6 +460,9 @@
 
   <style>
     img{ max-width:100%;}
+    #messages-app .chat_ib .badge {
+      margin-left: 10px;
+    }
     #messages-app .inbox_people {
       background: #f8f8f8 none repeat scroll 0 0;
       float: left;
@@ -382,6 +571,9 @@
     #messages-app .sent_msg {
       float: right;
       width: 46%;
+    }
+    #messages-app .input_msg_write {
+      display: flex;
     }
     #messages-app .input_msg_write input {
       background: rgba(0, 0, 0, 0) none repeat scroll 0 0;

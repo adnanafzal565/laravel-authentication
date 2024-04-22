@@ -29,6 +29,7 @@ body {
   position: fixed;
   right: 20px;
   bottom: 90px;
+  max-width: 400px;
 }
 
 #chat-app .page {
@@ -163,6 +164,7 @@ body {
   position: relative;
   background: #efe7dd url("https://cloud.githubusercontent.com/assets/398893/15136779/4e765036-1639-11e6-9201-67e728e86f39.jpg") repeat;
   z-index: 0;
+  padding-bottom: 10px;
 }
 
 #chat-app .conversation ::-webkit-scrollbar {
@@ -186,6 +188,8 @@ body {
   overflow-x: hidden;
   padding: 0 16px;
   margin-bottom: 5px;
+  max-height: 350px;
+  overflow-y: scroll;
 }
 
 #chat-app .conversation .conversation-container:after {
@@ -206,7 +210,7 @@ body {
   margin: 8px 0;
   max-width: 85%;
   word-wrap: break-word;
-  z-index: -1;
+/*  z-index: -1;*/
 }
 
 #chat-app .message:after {
@@ -330,6 +334,7 @@ body {
   flex: 0 0 auto;
   margin-left: 8px;
   width: 48px;
+  cursor: pointer;
 }
 
 #chat-app .conversation-compose .input-msg {
@@ -339,9 +344,6 @@ body {
   margin: 0;
   outline: none;
   min-width: 50px;
-
-  /* TODO: remove this when the attachment feature is added */
-  padding-left: 15px;
 }
 
 #chat-app .conversation-compose .photo {

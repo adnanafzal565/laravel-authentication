@@ -7,6 +7,7 @@ function Chat() {
     const [messages, setMessages] = React.useState([])
     const [show, setShow] = React.useState(false)
     const [initialized, setInitialized] = React.useState(false)
+    const [attachments, setAttachments] = React.useState([])
 
     globalState.listen(function (newState) {
         setState(newState)
@@ -18,13 +19,43 @@ function Chat() {
         }
     }, [show])
 
+    function attachmentSelected() {
+        const files = event.target.files
+        const tempFiles = []
+        for (let a = 0; a < files.length; a++) {
+            const fileReader = new FileReader()
+            fileReader.onload = function (event) {
+                tempFiles.push({
+                    name: files[a].name,
+                    src: event.target.result
+                })
+
+                if (tempFiles.length == files.length) {
+                    setAttachments(tempFiles)
+                }
+            }
+            fileReader.readAsDataURL(files[a])
+        }
+    }
+
+    function removeAttachment(name) {
+        const tempAttachments = [...attachments]
+        for (let a = 0; a < tempAttachments.length; a++) {
+            if (tempAttachments[a].name == name) {
+                tempAttachments.splice(a, 1)
+            }
+        }
+        setAttachments(tempAttachments)
+    }
+
     async function sendMessage() {
+        event.preventDefault()
         setSending(true)
         const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
+        const form = event.target
         try {
-            const formData = new FormData()
-            formData.append("message", message)
+            const formData = new FormData(form)
             formData.append("time_zone", timeZone)
 
             const response = await axios.post(
@@ -43,6 +74,11 @@ function Chat() {
                 tempMessages.push(newMessage)
                 setMessages(tempMessages)
                 setMessage("")
+                setAttachments([])
+
+                setTimeout(function () {
+                    document.querySelector(".conversation-container").scrollTop = document.querySelector(".conversation-container").scrollHeight
+                }, 100)
             } else {
                 swal.fire("Error", response.data.message, "error")
             }
@@ -91,6 +127,10 @@ function Chat() {
                 } else {
                   document.getElementById("message-notification-badge").innerHTML = ""
                 }
+
+                setTimeout(function () {
+                    document.querySelector(".conversation-container").scrollTop = document.querySelector(".conversation-container").scrollHeight
+                }, 100)
             } else {
                 swal.fire("Error", response.data.message, "error")
             }
@@ -134,7 +174,7 @@ function Chat() {
                                 <i className="fa fa-arrow-left"></i>
                               </div>*/}
                               <div className="avatar">
-                                <img src="https://avatars.githubusercontent.com/u/12948048?v=4" alt="https://github.com/adnanafzal565" />
+                                <img src={`${ baseUrl }/img/adnan-afzal.jpg` } alt="https://github.com/adnanafzal565" />
                               </div>
                               <div className="name">
                                 <span>Admin</span>
@@ -166,27 +206,62 @@ function Chat() {
                                 { messages.map(function (m) {
                                     return (
                                         <div className={`message ${ m.sender_id == state.user.id ? "sent" : "received" }`} key={`message-${ m.id }`}>
-                                          { m.message }
-                                          <span className="metadata"><span className="time">{ m.created_at }</span></span>
+                                            { m.message }
+
+                                            <div style={{
+                                                marginTop: "20px"
+                                            }}>
+                                                { m.attachments.map(function (attachment, attachmentIndex) {
+                                                    return (
+                                                        <div key={`message-attachment-${ m.id }-${ attachmentIndex }`} style={{
+                                                            width: "fit-content",
+                                                            marginRight: "20px",
+                                                            marginBottom: "20px",
+                                                            position: "relative",
+                                                            display: "inline-block"
+                                                        }}>
+                                                            <img src={ attachment } style={{
+                                                                width: "50px",
+                                                                height: "50px",
+                                                                objectFit: "cover",
+                                                                cursor: "pointer"
+                                                            }} onClick={ function () {
+                                                                window.open(attachment, "_blank")
+                                                            } } />
+                                                        </div>
+                                                    )
+                                                }) }
+                                            </div>
+
+                                            <span className="metadata"><span className="time">{ m.created_at }</span></span>
                                         </div>
                                     )
                                 }) }
 
                               </div>
-                              <form className="conversation-compose">
-                                {/*<div className="emoji">
+
+                              <form className="conversation-compose" encType="multipart/form-data"
+                                onSubmit={ sendMessage }>
+                                <div className="emoji" onClick={ function () {
+                                    document.getElementById("input-attachment-message").click()
+                                } }>
                                     <i className="fa fa-paperclip"></i>
-                                </div>*/}
+
+                                    <input type="file" style={{
+                                        display: "none"
+                                    }} id="input-attachment-message" multiple onChange={ attachmentSelected }
+                                        name="attachments[]" />
+                                </div>
 
                                 <input className="input-msg" value={ message } onChange={ function () {
                                     setMessage(event.target.value)
-                                } } name="input" placeholder="Type a message" autoComplete="off" autoFocus />
-                                
+                                } } name="message" placeholder="Type a message" autoComplete="off" autoFocus />
+
                                 {/*<div className="photo">
                                   <i className="fa fa-camera"></i>
                                 </div>*/}
                                 
-                                <button className="send" type="button" onClick={ sendMessage } disabled={ sending }>
+                                <button className="send" type="submit" disabled={ sending }>
                                     <div className="circle" style={{
                                         backgroundColor: sending ? "gray" : "#008a7c"
                                     }}>
@@ -194,6 +269,49 @@ function Chat() {
                                     </div>
                                 </button>
                               </form>
+
+                                { attachments.length > 0 && (
+                                    <div style={{
+                                        marginRight: "10px",
+                                        marginLeft: "10px",
+                                        marginTop: "20px",
+                                        display: "inline-block",
+                                        maxWidth: "300px"
+                                    }}>
+                                        { attachments.map(function (attachment) {
+                                            return (
+                                                <div key={`selected-attachment-${ attachment.name }`} style={{
+                                                    width: "fit-content",
+                                                    marginRight: "20px",
+                                                    marginBottom: "20px",
+                                                    position: "relative",
+                                                    display: "inline-block"
+                                                }}>
+                                                    <div onClick={ function () {
+                                                        removeAttachment(attachment.name)
+                                                    } }>
+                                                        <i className="fa fa-close" style={{
+                                                            color: "red",
+                                                            position: "absolute",
+                                                            right: "-10px",
+                                                            top: "-10px",
+                                                            border: "2px solid white",
+                                                            borderRadius: "50%",
+                                                            fontSize: "12px",
+                                                            cursor: "pointer"
+                                                        }}></i>
+                                                    </div>
+
+                                                    <img src={ attachment.src } style={{
+                                                        width: "50px",
+                                                        height: "50px",
+                                                        objectFit: "cover"
+                                                    }} />
+                                                </div>
+                                            )
+                                        }) }
+                                    </div>
+                                ) }
                             </div>
                           </div>
                         </div>

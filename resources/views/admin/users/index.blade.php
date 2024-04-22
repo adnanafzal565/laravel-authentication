@@ -130,7 +130,10 @@
                       <td>{ user.name }</td>
                       <td>{ user.email }</td>
                       <td>
-                        <img src={ user.profile_image } style={ styles.profileImage } />
+                        <img src={ user.profile_image } style={ styles.profileImage }
+                          onError={function () {
+                            event.target.remove()
+                          }} />
                       </td>
                       <td>{ user.type }</td>
                       <td>{ user.created_at }</td>

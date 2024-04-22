@@ -14,8 +14,7 @@ class AdminController extends Controller
     public function send_message()
     {
         $validator = Validator::make(request()->all(), [
-            "id" => "required",
-            "message" => "required"
+            "id" => "required"
         ]);
 
         if (!$validator->passes() && count($validator->errors()->all()) > 0)
@@ -67,6 +66,26 @@ class AdminController extends Controller
             $message_arr["created_at"] = $date_time->format("d M, Y h:i:s a");
         }
 
+        $message_arr["attachments"] = [];
+        if (request()->file("attachments"))
+        {
+            foreach (request()->file("attachments") as $attachment)
+            {
+                $file_path = "messages/" . $message_arr["id"] . "/" . time() . "-" . $attachment->getClientOriginalName();
+                $attachment->storeAs("/public", $file_path);
+
+                DB::table("message_attachments")
+                    ->insertGetId([
+                        "message_id" => $message_arr["id"],
+                        "path" => $file_path,
+                        "created_at" => now(),
+                        "updated_at" => now()
+                    ]);
+
+                array_push($message_arr["attachments"], url("/storage/" . $file_path));
+            }
+        }
+
         DB::table("notifications")
             ->insertGetId([
                 "user_id" => $user->id,
@@ -110,9 +129,10 @@ class AdminController extends Controller
         }
 
         $messages = DB::table("messages")
-            ->select("messages.*", "sender.name AS sender_name")
+            ->leftJoin("message_attachments", "message_attachments.message_id", "=", "messages.id")
             ->join("users AS sender", "sender.id", "=", "messages.sender_id")
             ->where("sender_id", "=", $id)
+            ->select("messages.*", "sender.name AS sender_name", "message_attachments.path")
             ->orWhere("receiver_id", "=", $id)
             ->orderBy("messages.id", "desc")
             ->get();
@@ -133,11 +153,37 @@ class AdminController extends Controller
                 "sender_id" => $message->sender_id,
                 "sender_name" => $message->sender_name,
                 "message" => $message->message ?? "",
+                "attachments" => [],
                 "created_at" => $message->created_at
             ];
 
-            array_push($messages_arr, $message_obj);
-            array_push($message_ids, $message->id);
+            $index = -1;
+            for ($a = 0; $a < count($messages_arr); $a++)
+            {
+                if ($messages_arr[$a]["id"] == $message->id)
+                {
+                    $index = $a;
+                    break;
+                }
+            }
+
+            if ($message->path && Storage::exists("/public/" . $message->path))
+            {
+                array_push($message_obj["attachments"], url("/storage/" . $message->path));
+            }
+
+            if ($index > -1)
+            {
+                if ($message->path && Storage::exists("/public/" . $message->path))
+                {
+                    array_push($messages_arr[$index]["attachments"], url("/storage/" . $message->path));
+                }
+            }
+            else
+            {
+                array_push($messages_arr, (array) $message_obj);
+                array_push($message_ids, $message->id);
+            }
         }
 
         $notifications_count = 0;
@@ -166,6 +212,13 @@ class AdminController extends Controller
     {
         $this->auth();
         $admin = auth()->user();
+        $search = request()->search ?? "";
+
+        $new_messages = DB::table("notifications")
+            ->where("user_id", "=", $admin->id)
+            ->where("is_read", "=", 0)
+            ->where("type", "=", "new_message")
+            ->get();
 
         $messages = DB::table("messages")
             ->where("sender_id", "=", $admin->id)
@@ -175,6 +228,8 @@ class AdminController extends Controller
         $user_ids = [];
         $last_message = [];
         $last_message_date = [];
+        $user_notifications = [];
+
         foreach ($messages as $message)
         {
             if ($message->sender_id == $admin->id)
@@ -189,13 +244,32 @@ class AdminController extends Controller
                 $last_message_date[$message->sender_id] = date("d M", strtotime($message->created_at)) ?? "";
                 array_push($user_ids, $message->sender_id);
             }
-        }
 
+            $user_notifications[$message->sender_id] = 0;
+            foreach ($new_messages as $new_message)
+            {
+                if ($new_message->table_id == $message->id)
+                {
+                    $user_notifications[$message->sender_id]++;
+                    break;
+                }
+            }
+        }
         $user_ids = array_unique($user_ids);
 
         $users = DB::table("users")
-            ->whereIn("id", $user_ids)
-            ->get();
+            ->whereIn("id", $user_ids);
+
+        if (!empty($search))
+        {
+            $users = $users->where(function ($query) use ($search) {
+                $query->where("name", "LIKE", "%" . $search . "%")
+                    ->orWhere("email", "LIKE", "%" . $search . "%")
+                    ->orWhere("type", "=", $search);
+            });
+        }
+        $users = $users->get();
+
         $users_arr = [];
         foreach ($users as $user)
         {
@@ -203,7 +277,10 @@ class AdminController extends Controller
                 "id" => $user->id,
                 "name" => $user->name,
                 "email" => $user->email,
-                "profile_image" => url("/storage/" . $user->profile_image)
+                "profile_image" => url("/storage/" . $user->profile_image),
+                "last_message" => "",
+                "last_message_date" => "",
+                "user_notifications" => 0
             ];
 
             if (isset($last_message[$user->id]))
@@ -214,6 +291,11 @@ class AdminController extends Controller
             if (isset($last_message_date[$user->id]))
             {
                 $user_obj["last_message_date"] = $last_message_date[$user->id];
+            }
+
+            if (isset($user_notifications[$user->id]))
+            {
+                $user_obj["user_notifications"] = $user_notifications[$user->id];
             }
 
             array_push($users_arr, $user_obj);
