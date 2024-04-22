@@ -2,10 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Routing\Controller as BaseController;
-
 //Import PHPMailer classes into the global namespace
 //These must be at the top of your script, not inside a function
 use PHPMailer\PHPMailer\PHPMailer;
@@ -14,10 +10,8 @@ use PHPMailer\PHPMailer\Exception;
 
 use DB;
 
-class Controller extends BaseController
+abstract class Controller
 {
-    use AuthorizesRequests, ValidatesRequests;
-
     protected $token_secret = "laravel-authentication-token-secret";
     protected $admin_token_secret = "laravel-authentication-admin-token-secret";
 

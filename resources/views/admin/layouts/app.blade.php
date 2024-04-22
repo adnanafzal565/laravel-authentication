@@ -71,40 +71,42 @@
       })
 
       async function onInit() {
+          window.user = null
           const accessToken = localStorage.getItem(accessTokenKey)
-          if (accessToken) {
-              try {
-                  const response = await axios.post(
-                      baseUrl + "/api/me",
-                      null,
-                      {
-                          headers: {
-                              Authorization: "Bearer " + accessToken
-                          }
+          
+          try {
+              const response = await axios.post(
+                  baseUrl + "/api/me",
+                  null,
+                  {
+                      headers: {
+                          Authorization: "Bearer " + accessToken
                       }
-                  )
-
-                  if (response.data.status == "success") {
-                      const newMessages = response.data.new_messages
-                      const user = response.data.user
-
-                      globalState.setState({
-                          user: user
-                      })
-
-                      if (newMessages > 0) {
-                        document.getElementById("message-notification-badge").innerHTML = newMessages
-                      }
-
-                      window.onInit()
-                  } else {
-                      // swal.fire("Error", response.data.message, "error")
                   }
-              } catch (exp) {
-                  // swal.fire("Error", exp.message, "error")
+              )
+
+              if (response.data.status == "success") {
+                  const newMessages = response.data.new_messages
+                  window.user = response.data.user
+
+                  globalState.setState({
+                      user: window.user
+                  })
+
+                  if (newMessages > 0) {
+                    document.getElementById("message-notification-badge").innerHTML = newMessages
+                  }
+
+                  window.onInit()
+              } else {
+                  // swal.fire("Error", response.data.message, "error")
               }
-          } else {
-              window.location.href = baseUrl + "/admin/login"
+          } catch (exp) {
+              // swal.fire("Error", exp.message, "error")
+          }
+
+          if (window.user == null) {
+            window.location.href = baseUrl + "/admin/login"
           }
       }
 

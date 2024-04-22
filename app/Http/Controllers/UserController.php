@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Auth\Events\PasswordReset;
 
 use DB;
 use Storage;
@@ -81,27 +79,6 @@ class UserController extends Controller
         $password = request()->password ?? "";
         $password_confirmation = request()->password_confirmation ?? "";
 
-        /*$status = Password::reset(
-            request()->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user, $password) {
-                $user->forceFill([
-                    'password' => password_hash($password, PASSWORD_DEFAULT)
-                ])->save();
-
-                $user->setRememberToken(Str::random(60));
-
-                event(new PasswordReset($user));
-            }
-        );
-
-        if ($status == Password::PASSWORD_RESET)
-        {
-            return response()->json([
-                "status" => "success",
-                "message" => __($status)
-            ]);
-        }*/
-
         $password_reset_token = DB::table("password_reset_tokens")
             ->where("email", "=", $email)
             ->where("token", "=", $token)
@@ -168,18 +145,6 @@ class UserController extends Controller
                 "message" => "User not found."
             ]);
         }
-
-        /*$status = Password::sendResetLink(
-            request()->only("email")
-        );
-
-        if ($status === Password::RESET_LINK_SENT)
-        {
-            return response()->json([
-                "status" => "success",
-                "message" => __($status)
-            ]);
-        }*/
 
         // $reset_token = time() . md5($email);
         $reset_token = Str::random(60);

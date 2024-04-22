@@ -427,6 +427,7 @@ class AdminController extends Controller
         $type = request()->type ?? "";
 
         $user = DB::table("users")
+            ->where("type", "!=", "super_admin")
             ->where("id", "=", $id)
             ->whereNull("deleted_at")
             ->first();
@@ -512,6 +513,7 @@ class AdminController extends Controller
         $id = request()->id ?? 0;
 
         $user = DB::table("users")
+            ->where("type", "!=", "super_admin")
             ->where("id", "=", $id)
             ->first();
 
@@ -545,6 +547,7 @@ class AdminController extends Controller
         }
 
         $users = DB::table("users")
+            ->where("type", "!=", "super_admin")
             ->whereNull("deleted_at")
             ->orderBy("id", "desc")
             ->paginate();

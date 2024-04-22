@@ -15,6 +15,7 @@
 7. Change password
 8. Admin panel
 9. Dynamic SMTP settings from admin panel
+10. Chat between user and admin (with attachments)
 
 ### Tech stack
 
