@@ -21,8 +21,12 @@ abstract class Controller
         $mail = new PHPMailer(true);
 
         $settings = DB::table("settings")->get();
-        $settings_obj = new \stdClass();
+        if (count($settings) <= 0)
+        {
+            return "SMTP configurations not set.";
+        }
 
+        $settings_obj = new \stdClass();
         foreach ($settings as $setting)
         {
             $settings_obj->{$setting->key} = $setting->value;
