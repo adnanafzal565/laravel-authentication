@@ -46,7 +46,14 @@
                 if (response.data.status == "success") {
                     const accessToken = response.data.access_token
                     localStorage.setItem(accessTokenKey, accessToken)
-                    window.location.href = baseUrl
+
+                    const urlSearchParams = new URLSearchParams(window.location.search)
+                    const redirect = urlSearchParams.get("redirect") || ""
+                    if (redirect == "") {
+                        window.location.href = baseUrl
+                    } else {
+                        window.location.href = redirect
+                    }
                 } else {
                     swal.fire("Error", response.data.message, "error")
                 }

@@ -22,7 +22,7 @@
                         <input type="password" name="password_confirmation" class="form-control" required />
                     </div>
 
-                    <input type="submit" name="submit" class="btn btn-outline-primary btn-sm" value="Send reset link" style="margin-top: 15px;" />
+                    <input type="submit" name="submit" class="btn btn-outline-primary btn-sm" value="Reset" style="margin-top: 15px;" />
                 </form>
             </div>
         </div>
