@@ -282,6 +282,69 @@ class UserController extends Controller
         $user = auth()->user();
         $user->profile_image = url("/storage/" . $user->profile_image);
 
+        $client_ip = $_SERVER['REMOTE_ADDR'];
+        // $client_ip = "223.123.88.250";
+        $user_agent = $_SERVER['HTTP_USER_AGENT'];
+
+        $timestamp = strtotime($user->last_location_at);
+
+        $current_timestamp = time();
+
+        $difference = $current_timestamp - $timestamp;
+
+        $twenty_four_hours_in_seconds = 24 * 60 * 60;
+
+        if ($difference >= $twenty_four_hours_in_seconds)
+        {
+            $curl = curl_init();
+            curl_setopt_array($curl, [
+                CURLOPT_URL => "http://www.geoplugin.net/json.gp?ip=" . $client_ip,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => json_encode([]),
+                CURLOPT_HTTPHEADER => [
+                    "Content-Type: application/json"
+                ]
+            ]);
+            $response = curl_exec($curl);
+
+            if (curl_errno($curl))
+            {
+                $error = curl_error($curl);
+            }
+            else
+            {
+                $response = json_decode($response);
+                if ($response->geoplugin_status == 200)
+                {
+                    $location = [
+                        "city" => $response->geoplugin_city,
+                        "continent" => $response->geoplugin_continentName,
+                        "continentCode" => $response->geoplugin_continentCode,
+                        "country" => $response->geoplugin_countryName,
+                        "countryCode" => $response->geoplugin_countryCode,
+                        "currencyCode" => $response->geoplugin_currencyCode,
+                        "currencySymbol" => $response->geoplugin_currencySymbol,
+                        "currencyConverter" => $response->geoplugin_currencyConverter,
+                        "latitude" => $response->geoplugin_latitude,
+                        "longitude" => $response->geoplugin_longitude,
+                        "region" => $response->geoplugin_region,
+                        "ipAddress" => $response->geoplugin_request,
+                        "timezone" => $response->geoplugin_timezone,
+                        "user_agent" => $user_agent
+                    ];
+
+                    DB::table("users")
+                        ->where("id", "=", $user->id)
+                        ->update([
+                            "location" => json_encode($location),
+                            "last_location_at" => now()->utc()
+                        ]);
+                }
+            }
+            curl_close($curl);
+        }
+
         $new_messages = DB::table("notifications")
             ->where("user_id", "=", $user->id)
             ->where("is_read", "=", 0)

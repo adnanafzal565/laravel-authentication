@@ -20,6 +20,8 @@ return new class extends Migration
             $table->longText("profile_image")->nullable();
             $table->text("verification_code")->nullable();
             $table->string("type")->nullable();
+            $table->json("location")->nullable();
+            $table->timestamp("last_location_at")->nullable();
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
