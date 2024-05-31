@@ -38,7 +38,11 @@ function Profile() {
                 swal.fire("Error", response.data.message, "error")
             }
         } catch (exp) {
-            swal.fire("Error", exp.message, "error")
+            if (exp.response.status == 401) {
+                window.location.href = baseUrl + "/login?redirect=" + window.location.href
+            } else {
+                swal.fire("Error", exp.message, "error")
+            }
         } finally {
             setIsSaving(false)
         }
