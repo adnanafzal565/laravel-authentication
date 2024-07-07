@@ -2,8 +2,12 @@ function Header() {
 
     const [state, setState] = React.useState(globalState.state)
 
-    globalState.listen(function (newState) {
+    globalState.listen(function (newState, updatedState) {
         setState(newState)
+
+        // if (typeof updatedState.user !== "undefined") {
+        //     onInit()
+        // }
     })
 
     async function onInit() {

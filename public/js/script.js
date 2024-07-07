@@ -18,7 +18,7 @@ const globalState = {
         }
 
         for (let a = 0; a < this.listeners.length; a++) {
-            this.listeners[a](this.state)
+            this.listeners[a](this.state, newState)
         }
     }
 }
