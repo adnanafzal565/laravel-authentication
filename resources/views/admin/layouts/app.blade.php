@@ -40,6 +40,25 @@
   * License: https://bootstrapmade.com/license/
   ======================================================== -->
 
+  <script src="{{ asset('/administrator/js/jquery-3.6.0.min.js') }}"></script>
+  <script src="{{ asset('/administrator/js/bootstrap.min.js') }}"></script>
+
+  <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+  <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> -->
+
+  <!-- Vendor JS Files -->
+  <script src="{{ asset('/administrator/vendor/apexcharts/apexcharts.min.js') }}"></script>
+  <!-- <script src="{{ asset('/administrator/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script> -->
+  <script src="{{ asset('/administrator/vendor/chart.js/chart.umd.js') }}"></script>
+  <script src="{{ asset('/administrator/vendor/echarts/echarts.min.js') }}"></script>
+  <script src="{{ asset('/administrator/vendor/quill/quill.min.js') }}"></script>
+  <script src="{{ asset('/administrator/vendor/simple-datatables/simple-datatables.js') }}"></script>
+  <script src="{{ asset('/administrator/vendor/tinymce/tinymce.min.js') }}"></script>
+  <script src="{{ asset('/administrator/vendor/php-email-form/validate.js') }}"></script>
+
+  <!-- Template Main JS File -->
+  <script src="{{ asset('/administrator/js/main.js') }}"></script>
+
   <script src="{{ asset('/js/react.development.js') }}"></script>
   <script src="{{ asset('/js/react-dom.development.js') }}"></script>
   <script src="{{ asset('/js/babel.min.js') }}"></script>
@@ -333,20 +352,32 @@
     </div>
   </footer><!-- End Footer -->
 
+  <!-- Modal -->
+  <div class="modal" id="example-modal" tabindex="-1">
+      <div class="modal-dialog" role="document">
+          <div class="modal-content">
+              <div class="modal-header" style="display: inline-block;">
+                  <h5 class="modal-title" style="display: contents;">Title</h5>
+
+                  <button type="button" class="close btn btn-danger btn-sm" data-dismiss="modal" aria-label="Close"
+                      style="float: right;">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+
+              <div class="modal-body">
+                  Modal body
+              </div>
+
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="button" name="submit" class="btn btn-primary">Save changes</button>
+              </div>
+          </div>
+      </div>
+  </div>
+
   <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-
-  <!-- Vendor JS Files -->
-  <script src="{{ asset('/administrator/vendor/apexcharts/apexcharts.min.js') }}"></script>
-  <script src="{{ asset('/administrator/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-  <script src="{{ asset('/administrator/vendor/chart.js/chart.umd.js') }}"></script>
-  <script src="{{ asset('/administrator/vendor/echarts/echarts.min.js') }}"></script>
-  <script src="{{ asset('/administrator/vendor/quill/quill.min.js') }}"></script>
-  <script src="{{ asset('/administrator/vendor/simple-datatables/simple-datatables.js') }}"></script>
-  <script src="{{ asset('/administrator/vendor/tinymce/tinymce.min.js') }}"></script>
-  <script src="{{ asset('/administrator/vendor/php-email-form/validate.js') }}"></script>
-
-  <!-- Template Main JS File -->
-  <script src="{{ asset('/administrator/js/main.js') }}"></script>
 
 </body>
 
