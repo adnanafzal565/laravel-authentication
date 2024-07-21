@@ -219,8 +219,7 @@ class UserController extends Controller
     public function save_profile()
     {
         $validator = Validator::make(request()->all(), [
-            "name" => "required",
-            "profile_image" => "required"
+            "name" => "required"
         ]);
 
         if (!$validator->passes() && count($validator->errors()->all()) > 0)
@@ -356,9 +355,9 @@ class UserController extends Controller
             "message" => "Data has been fetched.",
             "user" => [
                 "id" => $user->id,
-                "name" => $user->name,
-                "email" => $user->email,
-                "profile_image" => $user->profile_image
+                "name" => $user->name ?? "",
+                "email" => $user->email ?? "",
+                "profile_image" => ($user->profile_image && Storage::exists("public/" . $user->profile_image)) ? url("/storage/" . $user->profile_image) : ""
             ],
             "new_messages" => $new_messages
         ]);

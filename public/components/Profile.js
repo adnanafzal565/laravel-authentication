@@ -6,15 +6,17 @@ function Profile() {
     const [profileImage, setProfileImage] = React.useState("")
     const [isSaving, setIsSaving] = React.useState(false)
 
-    globalState.listen(function (newState) {
-        setState(newState)
+    React.useEffect(function () {
+        globalState.listen(function (newState) {
+            setState(newState)
 
-        if (newState.user != null) {
-            setName(newState.user.name)
-            setEmail(newState.user.email)
-            setProfileImage(newState.user.profile_image)
-        }
-    })
+            if (newState.user != null) {
+                setName(newState.user.name)
+                setEmail(newState.user.email)
+                setProfileImage(newState.user.profile_image)
+            }
+        })
+    }, [])
 
     async function saveProfile() {
         try {
