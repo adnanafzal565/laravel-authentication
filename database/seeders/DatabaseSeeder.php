@@ -22,9 +22,9 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
 
-        $name = env("name", "");
-        $email = env("email", "");
-        $password = env("password", "");
+        $name = env("name", "Admin");
+        $email = env("email", "admin@adnan-tech.com");
+        $password = env("password", "admin");
 
         if (!empty($name) && !empty($email) && !empty($password))
         {

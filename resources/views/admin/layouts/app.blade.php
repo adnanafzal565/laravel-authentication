@@ -14,8 +14,8 @@
   <link href="{{ asset('/administrator/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
 
   <!-- Google Fonts -->
-  <link href="https://fonts.gstatic.com" rel="preconnect">
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+  <!-- <link href="https://fonts.gstatic.com" rel="preconnect"> -->
+  <!-- <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet"> -->
 
   <!-- Vendor CSS Files -->
   <link href="{{ asset('/administrator/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
@@ -108,6 +108,8 @@
                   const newMessages = response.data.new_messages
                   window.user = response.data.user
 
+                  document.getElementById("sidebar-nav").style.display = ""
+
                   globalState.setState({
                       user: window.user
                   })
@@ -130,33 +132,33 @@
       }
 
       React.useEffect(function () {
-          onInit()
+        onInit()
       }, [])
 
       async function logout() {
-          try {
-              const response = await axios.post(
-                  baseUrl + "/api/logout",
-                  null,
-                  {
-                      headers: {
-                          Authorization: "Bearer " + localStorage.getItem(accessTokenKey)
-                      }
-                  }
-              )
-
-              if (response.data.status == "success") {
-                  globalState.setState({
-                      user: null
-                  })
-                  localStorage.removeItem(accessTokenKey)
-                  window.location.href = baseUrl + "/admin/login"
-              } else {
-                  swal.fire("Error", response.data.message, "error")
+        try {
+          const response = await axios.post(
+            baseUrl + "/api/logout",
+            null,
+            {
+              headers: {
+                Authorization: "Bearer " + localStorage.getItem(accessTokenKey)
               }
-          } catch (exp) {
-              swal.fire("Error", exp.message, "error")
+            }
+          )
+
+          if (response.data.status == "success") {
+            globalState.setState({
+              user: null
+            })
+            localStorage.removeItem(accessTokenKey)
+            window.location.href = baseUrl + "/admin/login"
+          } else {
+            swal.fire("Error", response.data.message, "error")
           }
+        } catch (exp) {
+          swal.fire("Error", exp.message, "error")
+        }
       }
 
       return (
@@ -226,7 +228,7 @@
   <!-- ======= Sidebar ======= -->
   <aside id="sidebar" class="sidebar">
 
-    <ul class="sidebar-nav" id="sidebar-nav">
+    <ul class="sidebar-nav" id="sidebar-nav" style="display: none;">
 
       <li class="nav-item">
         <a class="nav-link {{ request()->url() == url('/admin') ? '' : 'collapsed' }}" href="{{ url('/admin') }}">
@@ -236,14 +238,14 @@
       </li>
 
       <li class="nav-item">
-        <a class="nav-link {{ request()->url() == url('/admin/users') ? '' : 'collapsed' }}" href="{{ url('/admin/users') }}">
+        <a class="nav-link {{ str_contains(request()->url(), 'admin/users') ? '' : 'collapsed' }}" href="{{ url('/admin/users') }}">
           <i class="fa fa-users"></i>&nbsp;
           <span>Users</span>
         </a>
       </li>
 
       <li class="nav-item">
-        <a class="nav-link {{ request()->url() == url('/admin/messages') ? '' : 'collapsed' }}" href="{{ url('/admin/messages') }}">
+        <a class="nav-link {{ str_contains(request()->url(), 'admin/messages') ? '' : 'collapsed' }}" href="{{ url('/admin/messages') }}">
           <i class="fa fa-comments"></i>&nbsp;
           <span>Messages</span>
           <span class="badge bg-primary badge-notification" id="message-notification-badge"></span>
@@ -251,7 +253,7 @@
       </li>
 
       <li class="nav-item">
-        <a class="nav-link {{ request()->url() == url('/admin/settings') ? '' : 'collapsed' }}" href="{{ url('/admin/settings') }}">
+        <a class="nav-link {{ str_contains(request()->url(), 'admin/settings') ? '' : 'collapsed' }}" href="{{ url('/admin/settings') }}">
           <i class="fa fa-gear"></i>&nbsp;
           <span>Settings</span>
         </a>

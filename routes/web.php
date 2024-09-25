@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\AdminController;
+
 Route::get("/admin/messages", function () {
     return view("admin/messages");
 });
@@ -28,9 +30,7 @@ Route::get("/admin/login", function () {
     return view("admin/login");
 });
 
-Route::get("/admin", function () {
-    return view("admin/index");
-});
+Route::get("/admin", [AdminController::class, "index"]);
 
 Route::get("/email-verification/{email}", function () {
     return view("email-verification", [

@@ -14,6 +14,27 @@ abstract class Controller
 {
     protected $token_secret = "laravel-authentication-token-secret";
     protected $admin_token_secret = "laravel-authentication-admin-token-secret";
+    // protected $user_session_key = "laravel-authentication-user-session";
+    // protected $admin_session_key = "laravel-authentication-admin-session";
+
+    protected function admin_auth()
+    {
+        if (!auth()->check())
+        {
+            return response()->json([
+                "status" => "error",
+                "message" => "Not logged-in."
+            ])->throwResponse();
+        }
+
+        if (auth()->user()->type != "super_admin")
+        {
+            return response()->json([
+                "status" => "error",
+                "message" => "Un-authorized."
+            ])->throwResponse();
+        }
+    }
 
     protected function send_mail($to, $to_name, $subject, $body)
     {

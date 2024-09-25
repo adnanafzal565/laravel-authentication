@@ -25,7 +25,7 @@ class AdminController extends Controller
             ]);
         }
 
-        $this->auth();
+        $this->admin_auth();
         $admin = auth()->user();
 
         $id = request()->id ?? 0;
@@ -119,7 +119,7 @@ class AdminController extends Controller
             ]);
         }
 
-        $this->auth();
+        $this->admin_auth();
         $admin = auth()->user();
         $id = request()->id ?? 0;
         $time_zone = request()->time_zone ?? "";
@@ -210,7 +210,7 @@ class AdminController extends Controller
 
     public function fetch_contacts()
     {
-        $this->auth();
+        $this->admin_auth();
         $admin = auth()->user();
         $search = request()->search ?? "";
 
@@ -325,7 +325,8 @@ class AdminController extends Controller
             ]);
         }
 
-        $admin = $this->auth();
+        $this->admin_auth();
+        $admin = auth()->user();
         $name = request()->name ?? "";
         $email = request()->email ?? "";
         $password = request()->password ?? "";
@@ -375,7 +376,9 @@ class AdminController extends Controller
             ]);
         }
 
-        $admin = $this->auth();
+        $this->admin_auth();
+        $admin = auth()->user();
+
         $id = request()->id ?? 0;
         $password = request()->password ?? "";
 
@@ -421,7 +424,9 @@ class AdminController extends Controller
             ]);
         }
 
-        $admin = $this->auth();
+        $this->admin_auth();
+        $admin = auth()->user();
+
         $id = request()->id ?? 0;
         $name = request()->name ?? "";
         $type = request()->type ?? "";
@@ -468,7 +473,9 @@ class AdminController extends Controller
             ]);
         }
 
-        $admin = $this->auth();
+        $this->admin_auth();
+        $admin = auth()->user();
+
         $id = request()->id ?? 0;
 
         $user = DB::table("users")
@@ -509,7 +516,9 @@ class AdminController extends Controller
             ]);
         }
 
-        $admin = $this->auth();
+        $this->admin_auth();
+        $admin = auth()->user();
+
         $id = request()->id ?? 0;
 
         $user = DB::table("users")
@@ -539,7 +548,9 @@ class AdminController extends Controller
 
     public function fetch_users()
     {
-        $admin = $this->auth();
+        $this->admin_auth();
+        $admin = auth()->user();
+
         $time_zone = request()->time_zone ?? "";
         if (!empty($time_zone))
         {
@@ -582,7 +593,9 @@ class AdminController extends Controller
 
     public function fetch_settings()
     {
-        $admin = $this->auth();
+        $this->admin_auth();
+        $admin = auth()->user();
+        
         $settings = DB::table("settings")->get();
         $settings_obj = new \stdClass();
 
@@ -600,7 +613,9 @@ class AdminController extends Controller
 
     public function save_settings()
     {
-        $admin = $this->auth();
+        $this->admin_auth();
+        $admin = auth()->user();
+
         $host = request()->host ?? "";
         $port = request()->port ?? "";
         $encryption = request()->encryption ?? "";
@@ -652,15 +667,20 @@ class AdminController extends Controller
         }
     }
 
-    private function auth()
+    public function index()
     {
-        if (auth()->user()->type != "super_admin")
-        {
-            return response()->json([
-                "status" => "error",
-                "message" => "Un-authorized."
-            ])->throwResponse();
-        }
+        $users = DB::table("users")
+            ->whereNull("deleted_at")
+            ->count();
+
+        $messages = DB::table("messages")
+            ->whereNull("deleted_at")
+            ->count();
+
+        return view("admin/index", [
+            "users" => $users,
+            "messages" => $messages
+        ]);
     }
 
     public function login()

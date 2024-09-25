@@ -267,6 +267,7 @@ class UserController extends Controller
         // $user->tokens()->delete();
 
         $user->currentAccessToken()->delete();
+        // request()->session()->forget($this->user_session_key);
 
         // $user->tokens()->where("id", $token_id)->delete();
 
@@ -293,7 +294,7 @@ class UserController extends Controller
 
         $twenty_four_hours_in_seconds = 24 * 60 * 60;
 
-        if ($difference >= $twenty_four_hours_in_seconds)
+        /*if ($difference >= $twenty_four_hours_in_seconds)
         {
             $curl = curl_init();
             curl_setopt_array($curl, [
@@ -342,13 +343,15 @@ class UserController extends Controller
                 }
             }
             curl_close($curl);
-        }
+        }*/
 
         $new_messages = DB::table("notifications")
             ->where("user_id", "=", $user->id)
             ->where("is_read", "=", 0)
             ->where("type", "=", "new_message")
             ->count();
+
+        // request()->session()->put($this->user_session_key, $user->id);
 
         return response()->json([
             "status" => "success",
@@ -410,6 +413,7 @@ class UserController extends Controller
         }
 
         $token = $user->createToken($this->token_secret)->plainTextToken;
+        // request()->session()->put($this->user_session_key, $user->id);
 
         return response()->json([
             "status" => "success",
