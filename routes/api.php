@@ -29,6 +29,7 @@ Route::group([
     Route::post("/logout", [UserController::class, "logout"]);
     Route::post("/me", [UserController::class, "me"]);
 
+    Route::post("/admin/stats", [AdminController::class, "stats"]);
     Route::post("/admin/send-message", [AdminController::class, "send_message"]);
     Route::post("/admin/fetch-messages", [AdminController::class, "fetch_messages"]);
     Route::post("/admin/fetch-contacts", [AdminController::class, "fetch_contacts"]);

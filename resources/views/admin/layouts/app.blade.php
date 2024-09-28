@@ -205,7 +205,10 @@
                       </li>
 
                       <li>
-                        <a className="dropdown-item d-flex align-items-center" href="javascript:void(0)" onClick={ logout }>
+                        <a className="dropdown-item d-flex align-items-center" href="#" onClick={ function () {
+                          event.preventDefault()
+                          logout()
+                        } }>
                           <i className="bi bi-box-arrow-right"></i>
                           <span>Sign Out</span>
                         </a>

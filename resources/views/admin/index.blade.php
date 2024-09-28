@@ -32,7 +32,7 @@
                       <i class="bi bi-people"></i>
                     </div>
                     <div class="ps-3">
-                      <h6>{{ $users }}</h6>
+                      <h6 id="users-count"></h6>
                     </div>
                   </div>
                 </div>
@@ -52,7 +52,7 @@
                       <i class="bi bi-chat"></i>
                     </div>
                     <div class="ps-3">
-                      <h6>{{ $messages }}</h6>
+                      <h6 id="messages-count"></h6>
                     </div>
                   </div>
                 </div>
@@ -102,5 +102,33 @@
 
       </div>
     </section>
+
+    <script type="text/javascript">
+      async function onInit() {
+        try {
+          const response = await axios.post(
+            baseUrl + "/api/admin/stats",
+            null,
+            {
+              headers: {
+                Authorization: "Bearer " + localStorage.getItem(accessTokenKey)
+              }
+            }
+          )
+
+          if (response.data.status == "success") {
+            const users = response.data.users || 0
+            const messages = response.data.messages || 0
+
+            document.getElementById("users-count").innerHTML = users
+            document.getElementById("messages-count").innerHTML = messages
+          } else {
+            // swal.fire("Error", response.data.message, "error")
+          }
+        } catch (exp) {
+          // swal.fire("Error", exp.message, "error")
+        }
+      }
+    </script>
 
 @endsection

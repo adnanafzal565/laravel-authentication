@@ -667,7 +667,7 @@ class AdminController extends Controller
         }
     }
 
-    public function index()
+    public function stats()
     {
         $users = DB::table("users")
             ->whereNull("deleted_at")
@@ -677,10 +677,17 @@ class AdminController extends Controller
             ->whereNull("deleted_at")
             ->count();
 
-        return view("admin/index", [
+        return response()->json([
+            "status" => "success",
+            "message" => "Data has been fetched.",
             "users" => $users,
             "messages" => $messages
         ]);
+    }
+
+    public function index()
+    {
+        return view("admin/index");
     }
 
     public function login()
