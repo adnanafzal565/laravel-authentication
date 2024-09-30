@@ -9,13 +9,19 @@ function Chat() {
     const [initialized, setInitialized] = React.useState(false)
     const [attachments, setAttachments] = React.useState([])
 
-    globalState.listen(function (newState) {
-        setState(newState)
-    })
-
     React.useEffect(function () {
-        if (show && !initialized && state.user != null) {
-            onInit()
+        globalState.listen(function (newState) {
+            setState(newState)
+
+            if (typeof newState.user !== "undefined") {
+                onInit()
+            }
+        })
+
+        if (show) {
+            setTimeout(function () {
+                document.querySelector(".conversation-container").scrollTop = document.querySelector(".conversation-container").scrollHeight
+            }, 200)
         }
     }, [show])
 
@@ -75,15 +81,11 @@ function Chat() {
                 setMessages(tempMessages)
                 setMessage("")
                 setAttachments([])
-
-                setTimeout(function () {
-                    document.querySelector(".conversation-container").scrollTop = document.querySelector(".conversation-container").scrollHeight
-                }, 100)
             } else {
                 swal.fire("Error", response.data.message, "error")
             }
         } catch (exp) {
-            swal.fire("Error", exp.message, "error")
+            swal.fire("Error", "Please login first.", "error")
         } finally {
             setSending(false)
         }
@@ -127,10 +129,6 @@ function Chat() {
                 } else {
                   document.getElementById("message-notification-badge").innerHTML = ""
                 }
-
-                setTimeout(function () {
-                    document.querySelector(".conversation-container").scrollTop = document.querySelector(".conversation-container").scrollHeight
-                }, 100)
             } else {
                 swal.fire("Error", response.data.message, "error")
             }
@@ -220,13 +218,15 @@ function Chat() {
                                                             position: "relative",
                                                             display: "inline-block"
                                                         }}>
-                                                            <img src={ attachment } style={{
+                                                            <img src={ attachment.path } style={{
                                                                 width: "50px",
                                                                 height: "50px",
                                                                 objectFit: "cover",
                                                                 cursor: "pointer"
                                                             }} onClick={ function () {
-                                                                window.open(attachment, "_blank")
+                                                                const parts = attachment.path.split("data:" + attachment.type + ";base64,")
+                                                                if (parts.length > 1)
+                                                                    openBase64File(parts[1], attachment.type)
                                                             } } />
                                                         </div>
                                                     )

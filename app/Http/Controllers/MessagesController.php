@@ -20,10 +20,10 @@ class MessagesController extends Controller
         }
 
         $messages = DB::table("messages")
+            ->select("messages.*", "message_attachments.path", "message_attachments.type", "message_attachments.name")
             ->leftJoin("message_attachments", "message_attachments.message_id", "=", "messages.id")
             ->where("messages.sender_id", "=", $user->id)
             ->orWhere("messages.receiver_id", "=", $user->id)
-            ->select("messages.*", "message_attachments.path")
             ->orderBy("messages.id", "desc")
             ->paginate();
 
@@ -57,16 +57,28 @@ class MessagesController extends Controller
                 }
             }
 
-            if ($message->path && Storage::exists("/public/" . $message->path))
+            $has_file = ($message->path && Storage::exists("/private/" . $message->path));
+            $file_content = "";
+
+            if ($has_file)
             {
-                array_push($message_obj["attachments"], url("/storage/" . $message->path));
+                $file_content = "data:" . $message->type . ";base64," . base64_encode(file_get_contents(storage_path("app/private/" . $message->path)));
+                array_push($message_obj["attachments"], [
+                    "path" => $file_content,
+                    "name" => $message->name ?? "",
+                    "type" => $message->type ?? ""
+                ]);
             }
 
             if ($index > -1)
             {
-                if ($message->path && Storage::exists("/public/" . $message->path))
+                if ($has_file)
                 {
-                    array_push($messages_arr[$index]["attachments"], url("/storage/" . $message->path));
+                    array_push($messages_arr[$index]["attachments"], [
+                        "path" => $file_content,
+                        "name" => $message->name ?? "",
+                        "type" => $message->type ?? ""
+                    ]);
                 }
             }
             else
@@ -86,9 +98,9 @@ class MessagesController extends Controller
         $notifications_count = $notifications->count();
 
         $notifications->update([
-                "is_read" => 1,
-                "updated_at" => now()
-            ]);
+            "is_read" => 1,
+            "updated_at" => now()
+        ]);
 
         return response()->json([
             "status" => "success",
@@ -144,17 +156,40 @@ class MessagesController extends Controller
             foreach (request()->file("attachments") as $attachment)
             {
                 $file_path = "messages/" . $message_arr["id"] . "/" . time() . "-" . $attachment->getClientOriginalName();
-                $attachment->storeAs("/public", $file_path);
+                $attachment->storeAs("/private", $file_path);
+
+                // Get the full path to the folder
+                $full_path = storage_path('app/private/messages');
+
+                // Set permissions using PHP's chmod function
+                chmod($full_path, 0775);
+
+                // Get the full path to the folder
+                $full_path = storage_path('app/private/messages/' . $message_arr["id"]);
+
+                // Set permissions using PHP's chmod function
+                chmod($full_path, 0775);
+
+                $obj = [
+                    "message_id" => $message_arr["id"],
+                    "name" => $attachment->getClientOriginalName(),
+                    "type" => $attachment->getClientMimeType(),
+                    "path" => $file_path,
+                    "size" => $attachment->getSize(),
+                    "created_at" => now(),
+                    "updated_at" => now()
+                ];
 
                 DB::table("message_attachments")
-                    ->insertGetId([
-                        "message_id" => $message_arr["id"],
-                        "path" => $file_path,
-                        "created_at" => now(),
-                        "updated_at" => now()
-                    ]);
+                    ->insertGetId($obj);
 
-                array_push($message_arr["attachments"], url("/storage/" . $file_path));
+                $file_content = "data:" . $obj["type"] . ";base64," . base64_encode(file_get_contents(storage_path("app/private/" . $file_path)));
+
+                array_push($message_arr["attachments"], [
+                    "path" => $file_content,
+                    "name" => $obj["name"],
+                    "type" => $obj["type"]
+                ]);
             }
         }
 

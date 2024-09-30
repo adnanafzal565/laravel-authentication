@@ -44,8 +44,10 @@
           { message.attachments.map(function (attachment, attachmentIndex) {
             return (
               <div key={`message-attachment-${ message.id }-${ attachmentIndex }`} style={ styles.singleAttachment }>
-                <img src={ attachment } style={ styles.attachmentImage } onClick={ function () {
-                  window.open(attachment, "_blank")
+                <img src={ attachment.path } style={ styles.attachmentImage } onClick={ function () {
+                  const parts = attachment.path.split("data:" + attachment.type + ";base64,")
+                  if (parts.length > 1)
+                    openBase64File(parts[1], attachment.type)
                 } } />
               </div>
             )
@@ -332,14 +334,20 @@
                         fetchContactMessages(contact.id)
                       } }>
                       <div className="chat_people">
-                        <div className="chat_img"> <img src={ contact.profile_image } alt={ contact.name } /> </div>
+                        <div className="chat_img">
+                          <img src={ contact.profile_image } alt={ contact.name }
+                            onError={ function () {
+                              event.target.remove()
+                            } } />
+                        </div>
+                        
                         <div className="chat_ib">
                           <h5>{ contact.name } <span className="chat_date">{ contact.last_message_date }</span></h5>
                           <p>
                             { contact.last_message }
 
                             { contact.user_notifications > 0 && (
-                              <span class="badge bg-info">{ contact.user_notifications }</span>
+                              <span className="badge bg-info">{ contact.user_notifications }</span>
                             ) }
                           </p>
                         </div>
@@ -377,10 +385,10 @@
                         <div className="incoming_msg">
                           <div className="received_msg">
                             <div className="received_withd_msg">
-                              <p>
+                              <div className="single-message">
                                 { m.message }
                                 <Attachments message={ m } />
-                              </p>
+                              </div>
                               
                               <span className="time_date"> { m.created_at } </span></div>
                           </div>
@@ -388,10 +396,10 @@
                       ) : (
                         <div className="outgoing_msg">
                           <div className="sent_msg">
-                            <p>
+                            <div className="single-message">
                               { m.message }
                               <Attachments message={ m } />
-                            </p>
+                            </div>
                             
                             <span className="time_date"> { m.created_at } </span> </div>
                         </div>
@@ -537,7 +545,7 @@
       vertical-align: top;
       width: 92%;
      }
-     #messages-app .received_withd_msg p {
+     #messages-app .received_withd_msg .single-message {
       background: #ebebeb none repeat scroll 0 0;
       border-radius: 3px;
       color: #646464;
@@ -559,7 +567,7 @@
       width: 60%;
     }
 
-     #messages-app .sent_msg p {
+     #messages-app .sent_msg .single-message {
       background: #05728f none repeat scroll 0 0;
       border-radius: 3px;
       font-size: 14px;

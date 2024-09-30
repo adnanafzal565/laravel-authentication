@@ -15,7 +15,10 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger("message_id")->nullable();
             $table->foreign("message_id")->references("id")->on("messages")->onUpdate("CASCADE")->onDelete("CASCADE");
-            $table->longText("path");
+            $table->text("name")->nullable();
+            $table->string("type", 255)->nullable();
+            $table->text("path")->nullable();
+            $table->double("size")->default(0);
             $table->timestamps();
         });
     }

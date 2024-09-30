@@ -2,14 +2,6 @@ function Header() {
 
     const [state, setState] = React.useState(globalState.state)
 
-    globalState.listen(function (newState, updatedState) {
-        setState(newState)
-
-        // if (typeof updatedState.user !== "undefined") {
-        //     onInit()
-        // }
-    })
-
     async function onInit() {
         const accessToken = localStorage.getItem(accessTokenKey)
         if (accessToken) {
@@ -45,6 +37,14 @@ function Header() {
     }
 
     React.useEffect(function () {
+        globalState.listen(function (newState, updatedState) {
+            setState(newState)
+
+            // if (typeof updatedState.user !== "undefined") {
+            //     onInit()
+            // }
+        })
+
         onInit()
     }, [])
 
@@ -108,7 +108,10 @@ function Header() {
                                 <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <li><a className="dropdown-item" href={ `${ baseUrl }/profile` }>Profile</a></li>
                                     <li><hr className="dropdown-divider" /></li>
-                                    <li><a className="dropdown-item" onClick={ logout } href="javascript:void(0)">Logout</a></li>
+                                    <li><a className="dropdown-item" onClick={ function () {
+                                        event.preventDefault()
+                                        logout()
+                                    } } href="#">Logout</a></li>
                                 </ul>
                             </li>
                         </ul>
