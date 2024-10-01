@@ -517,6 +517,9 @@
     }
     .chat_img img {
       border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
     }
     #messages-app .chat_ib {
       float: left;

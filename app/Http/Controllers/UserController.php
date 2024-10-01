@@ -46,7 +46,7 @@ class UserController extends Controller
         DB::table("users")
             ->where("id", "=", $user->id)
             ->update([
-                "verification_code" => null,
+                // "verification_code" => null,
                 "email_verified_at" => now()->utc(),
                 "updated_at" => now()->utc()
             ]);
@@ -280,7 +280,11 @@ class UserController extends Controller
     public function me()
     {
         $user = auth()->user();
-        $user->profile_image = url("/storage/" . $user->profile_image);
+
+        if ($user->profile_image && Storage::exists("public/" . $user->profile_image))
+            $user->profile_image = url("/storage/" . $user->profile_image);
+        else
+            $user->profile_image = "";
 
         $client_ip = $_SERVER['REMOTE_ADDR'];
         // $client_ip = "223.123.88.250";
@@ -360,7 +364,7 @@ class UserController extends Controller
                 "id" => $user->id,
                 "name" => $user->name ?? "",
                 "email" => $user->email ?? "",
-                "profile_image" => ($user->profile_image && Storage::exists("public/" . $user->profile_image)) ? url("/storage/" . $user->profile_image) : ""
+                "profile_image" => $user->profile_image
             ],
             "new_messages" => $new_messages
         ]);
