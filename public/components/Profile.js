@@ -7,7 +7,7 @@ function Profile() {
     const [isSaving, setIsSaving] = React.useState(false)
 
     React.useEffect(function () {
-        globalState.listen(function (newState) {
+        /*globalState.listen(function (newState) {
             setState(newState)
 
             if (newState.user != null) {
@@ -15,7 +15,13 @@ function Profile() {
                 setEmail(newState.user.email)
                 setProfileImage(newState.user.profile_image)
             }
-        })
+        })*/
+
+        if (window.userObject != null) {
+            setName(window.userObject.name)
+            setEmail(window.userObject.email)
+            setProfileImage(window.userObject.profile_image)
+        }
     }, [])
 
     async function saveProfile() {
@@ -65,9 +71,26 @@ function Profile() {
                         position: "relative",
                         left: "50%",
                         transform: "translateX(-50%)"
-                    }} src={ profileImage } />
+                    }} src={ profileImage }
+                        onError={ function (event) {
+                            event.target.src = baseUrl + "/img/user-placeholder.png"
+                        } } />
 
-                    <input type="file" name="profile_image" accept="image/*" />
+                    <input type="file" name="profile_image" accept="image/*"
+                        onChange={ function (event) {
+
+                            const files = event.target.files
+                            if (files.length) {
+                                const fileReader = new FileReader()
+     
+                                fileReader.onload = function (event) {
+                                    setProfileImage(event.target.result)
+                                    // document.getElementById("preview").setAttribute("src", event.target.result)
+                                }
+                     
+                                fileReader.readAsDataURL(files[0])
+                            }
+                        } } />
                 </div>
             </div>
 

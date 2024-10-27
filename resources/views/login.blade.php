@@ -39,7 +39,7 @@
                 form.submit.setAttribute("disabled", "disabled")
 
                 const response = await axios.post(
-                    baseUrl + "/api/login",
+                    baseUrl + "/login",
                     formData
                 )
 

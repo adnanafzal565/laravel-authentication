@@ -12,6 +12,16 @@ use App\Models\User;
 
 class UserController extends Controller
 {
+    public function change_password_view()
+    {
+        return view("change-password");
+    }
+
+    public function home()
+    {
+        return view("home");
+    }
+
     public function verify_email()
     {
         $validator = Validator::make(request()->all(), [
@@ -260,6 +270,45 @@ class UserController extends Controller
         ]);
     }
 
+    public function profile()
+    {
+        return view("profile");
+    }
+
+    public function do_logout()
+    {
+        $token = request()->session()->get(config("config.token_secret"), "");
+
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => config("config.api_url") . "/logout",
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_POST => 1,
+            CURLOPT_HTTPHEADER => [
+                "Authorization: Bearer " . $token
+            ]
+        ]);
+        
+        $response = curl_exec($curl);
+        
+        if (curl_errno($curl))
+        {
+            return response()->json([
+                "status" => "error",
+                "message" => curl_error($curl)
+            ]);
+        }
+
+        curl_close($curl);
+
+        $response = json_decode($response);
+        if ($response->status == "error")
+            return $response;
+
+        request()->session()->forget(config("config.token_secret"));
+        return $response;
+    }
+
     public function logout()
     {
         $user = auth()->user();
@@ -267,7 +316,6 @@ class UserController extends Controller
         // $user->tokens()->delete();
 
         $user->currentAccessToken()->delete();
-        // request()->session()->forget($this->user_session_key);
 
         // $user->tokens()->where("id", $token_id)->delete();
 
@@ -286,9 +334,9 @@ class UserController extends Controller
         else
             $user->profile_image = "";
 
-        $client_ip = $_SERVER['REMOTE_ADDR'];
+        $client_ip = $_SERVER['REMOTE_ADDR'] ?? "";
         // $client_ip = "223.123.88.250";
-        $user_agent = $_SERVER['HTTP_USER_AGENT'];
+        $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? "";
 
         $timestamp = strtotime($user->last_location_at);
 
@@ -364,10 +412,62 @@ class UserController extends Controller
                 "id" => $user->id,
                 "name" => $user->name ?? "",
                 "email" => $user->email ?? "",
-                "profile_image" => $user->profile_image
+                "profile_image" => $user->profile_image,
+                "type" => $user->type ?? ""
             ],
             "new_messages" => $new_messages
         ]);
+    }
+
+    public function login_view()
+    {
+        return view("login");
+    }
+
+    public function do_login()
+    {
+        $validator = Validator::make(request()->all(), [
+            "email" => "required",
+            "password" => "required"
+        ]);
+
+        if (!$validator->passes() && count($validator->errors()->all()) > 0)
+        {
+            return response()->json([
+                "status" => "error",
+                "message" => $validator->errors()->all()[0]
+            ]);
+        }
+
+        $email = request()->email ?? "";
+        $password = request()->password ?? "";
+
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => config("config.api_url") . "/login",
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_POST => 1,
+            CURLOPT_POSTFIELDS => "email=" . $email . "&password=" . $password
+        ]);
+        
+        $response = curl_exec($curl);
+        
+        if (curl_errno($curl))
+        {
+            return response()->json([
+                "status" => "error",
+                "message" => curl_error($curl)
+            ]);
+        }
+
+        curl_close($curl);
+
+        $response = json_decode($response);
+
+        if ($response->status == "success")
+            request()->session()->put(config("config.token_secret"), $response->access_token);
+
+        return $response;
     }
     
     public function login()
@@ -424,6 +524,36 @@ class UserController extends Controller
             "message" => "Login successfully.",
             "access_token" => $token
         ]);
+    }
+
+    public function email_verification()
+    {
+        $email = request()->email ?? "";
+
+        return view("email-verification", [
+            "email" => $email
+        ]);
+    }
+
+    public function reset_password_view()
+    {
+        $token = request()->token ?? "";
+        $email = request()->email ?? "";
+
+        return view("reset-password", [
+            "email" => $email,
+            "token" => $token
+        ]);
+    }
+
+    public function forgot_password()
+    {
+        return view("forgot-password");
+    }
+
+    public function register_view()
+    {
+        return view("register");
     }
 
     public function register()

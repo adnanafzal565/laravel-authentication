@@ -3,7 +3,15 @@ function Header() {
     const [state, setState] = React.useState(globalState.state)
 
     async function onInit() {
-        const accessToken = localStorage.getItem(accessTokenKey)
+        if (newMessages > 0) {
+            document.getElementById("message-notification-badge").innerHTML = newMessages
+        }
+
+        globalState.setState({
+            user: window.userObject
+        })
+
+        /*const accessToken = localStorage.getItem(accessTokenKey)
         if (accessToken) {
             try {
                 const response = await axios.post(
@@ -33,7 +41,7 @@ function Header() {
             } catch (exp) {
                 // swal.fire("Error", exp.message, "error")
             }
-        }
+        }*/
     }
 
     React.useEffect(function () {
