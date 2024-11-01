@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>@yield("title", "Laravel authentication")</title>
+        <title>@yield("title", config("config.app_name"))</title>
 
         <link rel="stylesheet" href="{{ asset('/css/bootstrap.css') }}" />
         <link rel="stylesheet" href="{{ asset('/css/fontawesome.css') }}" />
@@ -38,6 +38,29 @@
 
             if (window.userObject != null)
                 window.userObject = JSON.parse(window.userObject)
+
+            async function logout() {
+                try {
+                    const response = await axios.post(
+                        baseUrl + "/logout",
+                        null,
+                        {
+                            headers: {
+                                Authorization: "Bearer " + localStorage.getItem(accessTokenKey)
+                            }
+                        }
+                    )
+
+                    if (response.data.status == "success") {
+                        localStorage.removeItem(accessTokenKey)
+                        window.location.reload()
+                    } else {
+                        swal.fire("Error", response.data.message, "error")
+                    }
+                } catch (exp) {
+                    swal.fire("Error", exp.message, "error")
+                }
+            }
     	</script>
         
         <nav class="navbar navbar-expand-lg navbar-light bg-light" id="header-app">
@@ -81,31 +104,6 @@
                 </div>
             </div>
         </nav>
-
-        <script type="text/javascript">
-            async function logout() {
-                try {
-                    const response = await axios.post(
-                        baseUrl + "/logout",
-                        null,
-                        {
-                            headers: {
-                                Authorization: "Bearer " + localStorage.getItem(accessTokenKey)
-                            }
-                        }
-                    )
-
-                    if (response.data.status == "success") {
-                        localStorage.removeItem(accessTokenKey)
-                        window.location.reload()
-                    } else {
-                        swal.fire("Error", response.data.message, "error")
-                    }
-                } catch (exp) {
-                    swal.fire("Error", exp.message, "error")
-                }
-            }
-        </script>
 
         <!--<script type="text/babel" src="{{ asset('/components/Header.js?v=2') }}"></script>-->
 

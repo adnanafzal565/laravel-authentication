@@ -29,28 +29,11 @@ Route::post("/login", [UserController::class, "do_login"]);
 Route::group([
     "middleware" => [Admin::class]
 ], function () {
-    Route::get("/admin/messages", function () {
-        return view("admin/messages");
-    });
-
-    Route::get("/admin/users/add", function () {
-        return view("admin/users/add");
-    });
-
-    Route::get("/admin/users/edit/{id}", function () {
-        return view("admin/users/edit", [
-            "id" => request()->id ?? 0
-        ]);
-    });
-
-    Route::get("/admin/users", function () {
-        return view("admin/users/index");
-    });
-
-    Route::get("/admin/settings", function () {
-        return view("admin/settings");
-    });
-
+    Route::get("/admin/messages", [AdminController::class, "messages"]);
+    Route::get("/admin/users/add", [AdminController::class, "add_user_view"]);
+    Route::get("/admin/users/edit/{id}", [AdminController::class, "edit_user"]);
+    Route::get("/admin/users", [AdminController::class, "users"]);
+    Route::get("/admin/settings", [AdminController::class, "settings"]);
     Route::get("/admin", [AdminController::class, "index"]);
 });
 

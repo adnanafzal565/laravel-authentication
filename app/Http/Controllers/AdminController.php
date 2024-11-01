@@ -128,6 +128,11 @@ class AdminController extends Controller
         ]);
     }
 
+    public function messages()
+    {
+        return view("admin/messages");
+    }
+
     public function fetch_messages()
     {
         $validator = Validator::make(request()->all(), [
@@ -342,6 +347,11 @@ class AdminController extends Controller
             "message" => "Data has been fetched.",
             "users" => $users_arr
         ]);
+    }
+
+    public function add_user_view()
+    {
+        return view("admin/users/add");
     }
 
     public function add_user()
@@ -582,6 +592,20 @@ class AdminController extends Controller
         ]);
     }
 
+    public function edit_user()
+    {
+        $id = request()->id ?? 0;
+
+        return view("admin/users/edit", [
+            "id" => $id;
+        ]);
+    }
+
+    public function users()
+    {
+        return view("admin/users/index");
+    }
+
     public function fetch_users()
     {
         $this->admin_auth();
@@ -625,6 +649,11 @@ class AdminController extends Controller
             "message" => "Data has been fetched.",
             "users" => $users_arr
         ]);
+    }
+
+    public function settings()
+    {
+        return view("admin/settings");
     }
 
     public function fetch_settings()
