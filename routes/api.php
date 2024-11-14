@@ -16,7 +16,7 @@ Route::post("/reset-password", [UserController::class, "reset_password"]);
 Route::post("/send-password-reset-link", [UserController::class, "send_password_reset_link"]);
 Route::post("/login", [UserController::class, "login"]);
 Route::post("/register", [UserController::class, "register"]);
-Route::post("/admin/login", [AdminController::class, "login"]);
+Route::post("/admin/login", [AdminController::class, "do_login"]);
 
 Route::group([
     "middleware" => ["auth:sanctum"]

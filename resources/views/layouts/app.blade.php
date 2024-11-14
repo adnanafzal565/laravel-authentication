@@ -21,28 +21,29 @@
     </head>
 
     <body>
-        @php
+        
+        {{--@php
             $user = request()->attributes->get("user", null);
-        @endphp
+        @endphp--}}
 
     	<input type="hidden" id="base-url" value="{{ url('/') }}" />
         <input type="hidden" id="app-name" value="{{ config('config.app_name') }}" />
-        <input type="hidden" id="user-object" value="{{ json_encode($user) }}" />
-    	<input type="hidden" id="new-messages" value="{{ request()->attributes->get('new_messages', 0) }}" />
+        {{--<input type="hidden" id="user-object" value="{{ json_encode($user) }}" />
+    	<input type="hidden" id="new-messages" value="{{ request()->attributes->get('new_messages', 0) }}" />--}}
 
     	<script>
     		const baseUrl = document.getElementById("base-url").value
             const appName = document.getElementById("app-name").value
-            window.userObject = document.getElementById("user-object").value
-    		const newMessages = document.getElementById("new-messages").value
+            // window.userObject = document.getElementById("user-object").value
+    		// const newMessages = document.getElementById("new-messages").value
 
-            if (window.userObject != null)
-                window.userObject = JSON.parse(window.userObject)
+            // if (window.userObject != null)
+            //     window.userObject = JSON.parse(window.userObject)
 
             async function logout() {
                 try {
                     const response = await axios.post(
-                        baseUrl + "/logout",
+                        baseUrl + "/api/logout",
                         null,
                         {
                             headers: {
@@ -64,7 +65,7 @@
     	</script>
         
         <nav class="navbar navbar-expand-lg navbar-light bg-light" id="header-app">
-          	<div class="container">
+          	{{--<div class="container">
                 <a class="navbar-brand" href="{{ url('/' )}}">{{ config('config.app_name') }}</a>
                 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -102,10 +103,10 @@
                         @endif
                     </ul>
                 </div>
-            </div>
+            </div>--}}
         </nav>
 
-        <!--<script type="text/babel" src="{{ asset('/components/Header.js?v=2') }}"></script>-->
+        <script type="text/babel" src="{{ asset('/components/Header.js?v=2') }}"></script>
 
         <main class="flex-shrink-0">
             @yield("main")

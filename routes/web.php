@@ -9,9 +9,9 @@ use App\Http\Middleware\User;
 use App\Http\Middleware\Admin;
 
 Route::group([
-    "middleware" => [User::class]
+    // "middleware" => [User::class]
 ], function () {
-    Route::post("/logout", [UserController::class, "do_logout"]);
+    // Route::post("/logout", [UserController::class, "do_logout"]);
     Route::get("/email-verification/{email}", [UserController::class, "email_verification"]);
     Route::get("/reset-password/{email}/{token}", [UserController::class, "reset_password_view"])
         ->name("password.reset");
@@ -24,7 +24,8 @@ Route::group([
     Route::get("/", [UserController::class, "home"]);
 });
 
-Route::post("/login", [UserController::class, "do_login"]);
+// Route::post("/login", [UserController::class, "do_login"]);
+Route::post("/admin/login", [AdminController::class, "do_login"]);
 
 Route::group([
     "middleware" => [Admin::class]
@@ -37,6 +38,4 @@ Route::group([
     Route::get("/admin", [AdminController::class, "index"]);
 });
 
-Route::get("/admin/login", function () {
-    return view("admin/login");
-});
+Route::get("/admin/login", [AdminController::class, "login"]);

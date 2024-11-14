@@ -275,7 +275,7 @@ class UserController extends Controller
         return view("profile");
     }
 
-    public function do_logout()
+    /*public function do_logout()
     {
         $token = request()->session()->get(config("config.token_secret"), "");
 
@@ -307,7 +307,7 @@ class UserController extends Controller
 
         request()->session()->forget(config("config.token_secret"));
         return $response;
-    }
+    }*/
 
     public function logout()
     {
@@ -424,7 +424,7 @@ class UserController extends Controller
         return view("login");
     }
 
-    public function do_login()
+    /*public function do_login()
     {
         $validator = Validator::make(request()->all(), [
             "email" => "required",
@@ -468,7 +468,7 @@ class UserController extends Controller
             request()->session()->put(config("config.token_secret"), $response->access_token);
 
         return $response;
-    }
+    }*/
     
     public function login()
     {

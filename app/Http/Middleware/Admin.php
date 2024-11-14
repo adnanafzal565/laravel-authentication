@@ -17,7 +17,7 @@ class Admin
     {
         $token = request()->session()->get(config("config.token_secret"), "");
         if (empty($token))
-            abort(401);
+            return redirect("/admin/login");
 
         $curl = curl_init();
         curl_setopt_array($curl, [
@@ -33,22 +33,22 @@ class Admin
         curl_close($curl);
         
         if (curl_errno($curl))
-            abort(401);
+            return redirect("/admin/login");
 
         $http_status_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         if ($http_status_code !== 200)
-            abort(401);
+            return redirect("/admin/login");
 
         $response = json_decode($response);
         if ($response->status == "error")
-            abort(401);
+            return redirect("/admin/login");
 
         // $request->merge([
         //     "user" => $response->user
         // ]);
 
         if (!in_array($response->user->type, ["super_admin"]))
-            abort(401);
+            return redirect("/admin/login");
 
         $request->attributes->set("user", $response->user);
         $request->attributes->set("new_messages", $response->new_messages);

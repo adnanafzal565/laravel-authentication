@@ -597,7 +597,7 @@ class AdminController extends Controller
         $id = request()->id ?? 0;
 
         return view("admin/users/edit", [
-            "id" => $id;
+            "id" => $id
         ]);
     }
 
@@ -757,6 +757,11 @@ class AdminController extends Controller
 
     public function login()
     {
+        return view("admin/login");
+    }
+
+    public function do_login()
+    {
         $validator = Validator::make(request()->all(), [
             "email" => "required",
             "password" => "required"
@@ -808,6 +813,9 @@ class AdminController extends Controller
         }
 
         $token = $user->createToken($this->admin_token_secret)->plainTextToken;
+
+        if (request()->hasSession())
+            request()->session()->put(config("config.token_secret"), $token);
 
         return response()->json([
             "status" => "success",
