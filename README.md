@@ -46,9 +46,7 @@ Create a database named "laravel_authentication" in your phpMyAdmin.
 
 2. Rename the file ".env.example" to just ".env"
 
-3. Set your API URL in "config/config.php" variable "api_url".
-
-4. At root folder, run the following commands:
+3. At root folder, run the following commands:
 
 (You can write any name, email or password of your choice for super admin while running 5th command)
 
