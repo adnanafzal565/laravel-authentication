@@ -15,7 +15,7 @@ class Admin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $token = request()->session()->get(config("config.token_secret"), "");
+        $token = request()->session()->get(config("config.admin_token_secret"), "");
         if (empty($token))
             return redirect("/admin/login");
 

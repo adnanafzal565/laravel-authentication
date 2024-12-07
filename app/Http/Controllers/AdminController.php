@@ -158,7 +158,8 @@ class AdminController extends Controller
 
         $messages = DB::table("messages")
             ->select("messages.*", "sender.name AS sender_name",
-                "message_attachments.path", "message_attachments.type", "message_attachments.name")
+                "message_attachments.id AS attachment_id", "message_attachments.path",
+                "message_attachments.type", "message_attachments.name")
             ->leftJoin("message_attachments", "message_attachments.message_id", "=", "messages.id")
             ->join("users AS sender", "sender.id", "=", "messages.sender_id")
             ->where("sender_id", "=", $id)
@@ -201,9 +202,10 @@ class AdminController extends Controller
 
             if ($has_file)
             {
-                $file_content = "data:" . $message->type . ";base64," . base64_encode(file_get_contents(storage_path("app/private/" . $message->path)));
+                // $file_content = "data:" . $message->type . ";base64," . base64_encode(file_get_contents(storage_path("app/private/" . $message->path)));
                 array_push($message_obj["attachments"], [
-                    "path" => $file_content,
+                    // "path" => $file_content,
+                    "id" => $message->attachment_id ?? 0,
                     "name" => $message->name ?? "",
                     "type" => $message->type ?? ""
                 ]);
@@ -214,7 +216,8 @@ class AdminController extends Controller
                 if ($has_file)
                 {
                     array_push($messages_arr[$index]["attachments"], [
-                        "path" => $file_content,
+                        // "path" => $file_content,
+                        "id" => $message->attachment_id ?? 0,
                         "name" => $message->name ?? "",
                         "type" => $message->type ?? ""
                     ]);
@@ -815,7 +818,7 @@ class AdminController extends Controller
         $token = $user->createToken($this->admin_token_secret)->plainTextToken;
 
         if (request()->hasSession())
-            request()->session()->put(config("config.token_secret"), $token);
+            request()->session()->put(config("config.admin_token_secret"), $token);
 
         return response()->json([
             "status" => "success",

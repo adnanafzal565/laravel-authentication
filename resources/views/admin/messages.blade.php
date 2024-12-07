@@ -43,12 +43,20 @@
         <div style={ styles.container }>
           { message.attachments.map(function (attachment, attachmentIndex) {
             return (
-              <div key={`message-attachment-${ message.id }-${ attachmentIndex }`} style={ styles.singleAttachment }>
-                <img src={ attachment.path } style={ styles.attachmentImage } onClick={ function () {
-                  const parts = attachment.path.split("data:" + attachment.type + ";base64,")
-                  if (parts.length > 1)
-                    openBase64File(parts[1], attachment.type)
-                } } />
+              <div key={`message-attachment-${ message.id }-${ attachmentIndex }`}
+                style={ styles.singleAttachment }>
+                <img src={ `${ baseUrl }/messages/buffer-attachment/${ attachment.id }/${ localStorage.getItem(accessTokenKey) }` }
+                  style={ styles.attachmentImage }
+                  onClick={ function () {
+                    window.open(
+                        baseUrl + "/messages/buffer-attachment/" + attachment.id + "/" + localStorage.getItem(accessTokenKey),
+                        "_blank"
+                    );
+
+                    // const parts = attachment.path.split("data:" + attachment.type + ";base64,")
+                    // if (parts.length > 1)
+                    //   openBase64File(parts[1], attachment.type)
+                  } } />
               </div>
             )
           }) }

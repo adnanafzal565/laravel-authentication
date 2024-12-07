@@ -3,7 +3,7 @@
 
 @section ("main")
 
-    <div class="container" style="margin-top: 30px; margin-bottom: 30px;">
+    <div class="container mt-5 mb-5">
         <div class="row">
             <div class="offset-4 col-4">
                 <h2>Register</h2>

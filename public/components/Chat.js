@@ -218,15 +218,20 @@ function Chat() {
                                                             position: "relative",
                                                             display: "inline-block"
                                                         }}>
-                                                            <img src={ attachment.path } style={{
+                                                            <img src={ `${ baseUrl }/messages/buffer-attachment/${ attachment.id }/${ localStorage.getItem(accessTokenKey) }` } style={{
                                                                 width: "50px",
                                                                 height: "50px",
                                                                 objectFit: "cover",
                                                                 cursor: "pointer"
                                                             }} onClick={ function () {
-                                                                const parts = attachment.path.split("data:" + attachment.type + ";base64,")
-                                                                if (parts.length > 1)
-                                                                    openBase64File(parts[1], attachment.type)
+                                                                window.open(
+                                                                    baseUrl + "/messages/buffer-attachment/" + attachment.id + "/" + localStorage.getItem(accessTokenKey),
+                                                                    "_blank"
+                                                                );
+
+                                                                // const parts = attachment.path.split("data:" + attachment.type + ";base64,")
+                                                                // if (parts.length > 1)
+                                                                //     openBase64File(parts[1], attachment.type)
                                                             } } />
                                                         </div>
                                                     )
